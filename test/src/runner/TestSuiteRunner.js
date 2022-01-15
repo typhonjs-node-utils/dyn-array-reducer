@@ -1,5 +1,5 @@
 import APIErrors              from './tests/APIErrors.js';
-import DynamicReducer           from './tests/DynamicReducer.js';
+import DynArrayReducer        from './tests/DynArrayReducer.js';
 
 const s_API_ERRORS            = true;
 const s_ARRAY_REDUCER         = true;
@@ -7,7 +7,7 @@ const s_ARRAY_REDUCER         = true;
 const s_TESTS = [];
 
 if (s_API_ERRORS) { s_TESTS.push(APIErrors); }
-if (s_ARRAY_REDUCER) { s_TESTS.push(DynamicReducer); }
+if (s_ARRAY_REDUCER) { s_TESTS.push(DynArrayReducer); }
 
 export default class TestSuiteRunner
 {

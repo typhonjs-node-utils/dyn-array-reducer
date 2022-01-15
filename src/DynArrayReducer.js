@@ -3,9 +3,10 @@ import { AdapterSort }     from './AdapterSort.js';
 import { Indexer }         from './Indexer.js';
 
 /**
- * TODO: organize add / remove methods.
+ * Provides a managed array with non-destructive reducing / filtering / sorting capabilities with subscription /
+ * Svelte store support.
  */
-export class DynamicReducer
+export class DynArrayReducer
 {
    #items;
 
@@ -31,7 +32,7 @@ export class DynamicReducer
    {
       if (data === null || data === void 0 || typeof data !== 'object' || typeof data[Symbol.iterator] !== 'function')
       {
-         throw new TypeError(`DynamicReducer error: 'data' is not iterable.`);
+         throw new TypeError(`DynArrayReducer error: 'data' is not iterable.`);
       }
 
       this.#items = Array.isArray(data) ? data : [...data];

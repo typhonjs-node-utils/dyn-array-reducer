@@ -1,15 +1,15 @@
-export default class DynamicReducer
+export default class DynArrayReducer
 {
    static run(Module, data, chai)
    {
       const { assert } = chai;
-      const { DynamicReducer } = Module;
+      const { DynArrayReducer } = Module;
 
-      describe(`DynamicReducer (${data.suitePrefix})`, () =>
+      describe(`DynArrayReducer (${data.suitePrefix})`, () =>
       {
          it(`does it work`, () =>
          {
-            const arrayReducer = new DynamicReducer([0, 1, 2, 3, 4, 5, 6]);
+            const arrayReducer = new DynArrayReducer([0, 1, 2, 3, 4, 5, 6]);
 
             const unsubscribe = arrayReducer.subscribe(
              () => console.log(`!!!! arrayReducer update: ${JSON.stringify([...arrayReducer])}`));

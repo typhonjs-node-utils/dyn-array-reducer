@@ -1,6 +1,6 @@
 {
-  "name": "@typhonjs-utils/array-reducer",
-  "description": "Provides several utility functions for working with the file system including a TyphonJS plugin.",
+  "name": "@typhonjs-utils/dynamic-array-reducer",
+  "description": "Provides a managed array with non-destructive reducing / filtering / sorting capabilities with subscription / Svelte store support.",
   "version": "0.0.0",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
   "contributors": [
@@ -29,8 +29,10 @@
   "keywords": [
     "typhonjs",
     "utils",
+    "dynamic",
     "array",
-    "reducer"
+    "reducer",
+    "svelte"
   ],
   "license": "MPL-2.0",
   "bugs": "https://github.com/typhonjs-node-utils/array-reducer/issues",
