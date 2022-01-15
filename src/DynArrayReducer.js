@@ -12,7 +12,6 @@ export class DynArrayReducer
 
    #index;
    #indexAdapter;
-   #indexPublic;
 
    #filters;
    #filtersAdapter;
@@ -39,18 +38,15 @@ export class DynArrayReducer
 
       [this.#index, this.#indexAdapter] = new Indexer(this.#items, this.#updated.bind(this));
 
-      this.#indexPublic = { update: this.#indexAdapter.update };
-      Object.freeze(this.#indexPublic);
+      [this.#filters, this.#filtersAdapter] = new AdapterFilters(this.#indexAdapter.publicAPI.update);
+      [this.#sort, this.#sortAdapter] = new AdapterSort(this.#indexAdapter.publicAPI.update);
 
-      [this.#filters, this.#filtersAdapter] = new AdapterFilters(this.#indexAdapter.update);
-      [this.#sort, this.#sortAdapter] = new AdapterSort(this.#indexAdapter.update);
-
-      this.#index._initAdapters(this.#filtersAdapter, this.#sortAdapter);
+      this.#index.initAdapters(this.#filtersAdapter, this.#sortAdapter);
    }
 
    get filters() { return this.#filters; }
 
-   get index() { return this.#indexPublic; }
+   get index() { return this.#indexAdapter.publicAPI; }
 
    get length() { return this.#items.length; }
 
@@ -67,9 +63,9 @@ export class DynArrayReducer
 
    #dispatchUpdate()
    {
-      if (this.#index.hasOperations())
+      if (this.#index.isActive())
       {
-         this.#indexAdapter.update();
+         this.#index.update();
       }
       else
       {
@@ -117,11 +113,9 @@ export class DynArrayReducer
 
       if (items.length === 0) { return; }
 
-      const indexAdapter = this.#indexAdapter;
-
-      if (indexAdapter.index)
+      if (this.#index.isActive())
       {
-          for (const entry of indexAdapter.index) { yield items[entry]; }
+          for (const entry of this.#indexAdapter.publicAPI) { yield items[entry]; }
       }
       else
       {

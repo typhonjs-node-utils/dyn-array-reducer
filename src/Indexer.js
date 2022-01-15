@@ -5,12 +5,29 @@ export class Indexer
       this.hostItems = hostItems;
       this.hostUpdate = hostUpdate;
 
-      this.indexAdapter = { index: null, update: this.#update.bind(this) };
+      const indexAdapter = { index: null };
 
-      return [this, this.indexAdapter];
+      const publicAPI = {
+         update: this.update.bind(this),
+
+         [Symbol.iterator]: function *()
+         {
+            if (!indexAdapter.index) { return; }
+
+            for (const index of indexAdapter.index) { yield index; }
+         }
+      };
+
+      Object.freeze(publicAPI);
+
+      indexAdapter.publicAPI = publicAPI;
+
+      this.indexAdapter = indexAdapter;
+
+      return [this, indexAdapter];
    }
 
-   _initAdapters(filtersAdapter, sortAdapter)
+   initAdapters(filtersAdapter, sortAdapter)
    {
       this.filtersAdapter = filtersAdapter;
       this.sortAdapter = sortAdapter;
@@ -35,12 +52,25 @@ export class Indexer
       };
    }
 
-   hasOperations()
+   isActive()
    {
-      return this.filtersAdapter.filters || this.sortAdapter.sort ;
+      return this.filtersAdapter.filters.length > 0 || this.sortAdapter.sort ;
    }
 
-   #update()
+   /**
+    * Provides an iterator over the index array.
+    *
+    * @returns {Generator<any, void, *>} Iterator.
+    * @yields
+    */
+   *iterator()
+   {
+      if (!this.indexAdapter.index) { return; }
+
+      for (const index of this.indexAdapter.index) { yield index; }
+   }
+
+   update()
    {
       // Clear index if there are no filters or the index length doesn't match the items length.
       if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.sort) ||
