@@ -42,9 +42,9 @@ export class Indexer
 
    #update()
    {
-      // Clear index if there are no filters or sort function.
-      // Note: if there is only a sort function this will remove the existing index; it will be rebuilt below.
-      if (!this.filtersAdapter.filters || this.filtersAdapter.filters.length === 0)
+      // Clear index if there are no filters or the index length doesn't match the items length.
+      if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.sort) ||
+       (this.indexAdapter.index && this.hostItems.length !== this.indexAdapter.index.length))
       {
          this.indexAdapter.index = null;
       }
@@ -58,9 +58,7 @@ export class Indexer
 
       if (this.sortAdapter.sort)
       {
-         // If there is no index then create one.
-         // TODO: for performance can an index be maintained when there is only a sort function instead of constantly
-         // rebuilding it here if only sorting is enabled.
+         // If there is no index then create one with keys matching host item length.
          if (!this.indexAdapter.index) { this.indexAdapter.index = [...Array(this.hostItems.length).keys()]; }
 
 // console.log(`! AI - update (sort) - 1`);

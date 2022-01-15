@@ -7,7 +7,7 @@ export class AdapterFilters
    {
       this.#indexUpdate = indexUpdate;
 
-      this.#filtersAdapter = { filters: null };
+      this.#filtersAdapter = { filters: [] };
 
       Object.seal(this);
 
@@ -87,7 +87,7 @@ export class AdapterFilters
 
    clear()
    {
-      this.#filtersAdapter.filters = null;
+      this.#filtersAdapter.filters.length = 0;
       this.#indexUpdate();
    }
 
@@ -153,9 +153,11 @@ export class AdapterFilters
 
       const length = this.#filtersAdapter.filters.length;
 
-      this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((value) => {
+      this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((value) =>
+      {
          let keep = false;
-         for (const id of ids) { keep |= value.id === id }
+
+         for (const id of ids) { keep |= value.id === id; }
 
          return !keep;
       });

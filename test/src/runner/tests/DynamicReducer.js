@@ -11,7 +11,8 @@ export default class DynamicReducer
          {
             const arrayReducer = new DynamicReducer([0, 1, 2, 3, 4, 5, 6]);
 
-            const unsubscribe = arrayReducer.subscribe(() => console.log(`!!!! arrayReducer update: ${JSON.stringify([...arrayReducer])}`))
+            const unsubscribe = arrayReducer.subscribe(
+             () => console.log(`!!!! arrayReducer update: ${JSON.stringify([...arrayReducer])}`));
 
             let modulo = 2;
 
@@ -30,7 +31,7 @@ export default class DynamicReducer
             arrayReducer.pop();
 
             console.log(`!! filters.add`);
-            arrayReducer.filters.add({ id: 'dynamic modulo', filter: (value) => value % modulo === 0, weight: 0.1});
+            arrayReducer.filters.add({ id: 'dynamic modulo', filter: (value) => value % modulo === 0, weight: 0.1 });
 
             modulo = 3;
 
@@ -56,7 +57,7 @@ export default class DynamicReducer
             arrayReducer.filters.clear();
 
             console.log(`!! push(10)`);
-            arrayReducer.push(10)
+            arrayReducer.push(10);
 
             console.log(`!! sort.reset`);
             arrayReducer.sort.reset();
