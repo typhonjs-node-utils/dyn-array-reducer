@@ -7,10 +7,10 @@
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
   ],
   "type": "module",
-  "main": "src/ArrayReducer.js",
-  "module": "src/ArrayReducer.js",
+  "main": "src/DynArrayReducer.js",
+  "module": "src/DynArrayReducer.js",
   "exports": {
-    ".": "./src/ArrayReducer.js",
+    ".": "./src/DynArrayReducer.js",
     "./package.json": "./package.json"
   },
   "dependencies": {
