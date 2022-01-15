@@ -3,7 +3,6 @@ import { AdapterSort }     from './AdapterSort.js';
 import { Indexer }         from './Indexer.js';
 
 /**
- * TODO: handle edge cases when there is a sort function, but no filters and items are added / removed.
  * TODO: organize add / remove methods.
  */
 export class DynamicReducer
@@ -22,6 +21,12 @@ export class DynamicReducer
 
    #subscriptions = [];
 
+   /**
+    * Initializes DynArrayReducer. Any iterable is supported for initial data. Take note that if `data` is an array it
+    * will be used as the host array and not copied. All non-array iterables otherwise create a new array / copy.
+    *
+    * @param {Iterable<*>}   data - Data iterable to store or copy.
+    */
    constructor(data = void 0)
    {
       if (data === null || data === void 0 || typeof data !== 'object' || typeof data[Symbol.iterator] !== 'function')
@@ -29,7 +34,7 @@ export class DynamicReducer
          throw new TypeError(`DynamicReducer error: 'data' is not iterable.`);
       }
 
-      this.#items = [...data];
+      this.#items = Array.isArray(data) ? data : [...data];
 
       [this.#index, this.#indexAdapter] = new Indexer(this.#items, this.#updated.bind(this));
 

@@ -42,19 +42,19 @@ export class AdapterFilters
             case 'object':
                if (filter.id !== void 0 && typeof filter.id !== 'string')
                {
-                  throw new TypeError(`DynamicReducer error: 'filter.id' is not a string.`);
+                  throw new TypeError(`DynamicReducer error: 'id' attribute is not undefined or a string.`);
                }
 
                if (typeof filter.filter !== 'function')
                {
-                  throw new TypeError(`DynamicReducer error: 'filter.filter' is not a function.`);
+                  throw new TypeError(`DynamicReducer error: 'filter' attribute is not a function.`);
                }
 
                if (filter.weight !== void 0 && typeof filter.weight !== 'number' &&
                 (filter.weight < 0 || filter.weight > 1))
                {
                   throw new TypeError(
-                   `DynamicReducer error: 'filter.weight' is not a number between '0 - 1' inclusive.`);
+                   `DynamicReducer error: 'weight' attribute is not a number between '0 - 1' inclusive.`);
                }
 
                data = {
@@ -95,9 +95,9 @@ export class AdapterFilters
    {
       if (!this.#filtersAdapter.filters) { return; }
 
-      for (const filter of this.#filtersAdapter.filters)
+      for (const entry of this.#filtersAdapter.filters)
       {
-         yield filter;
+         yield { ...entry };
       }
    }
 
