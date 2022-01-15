@@ -1,2 +1,3 @@
-# array-reducer
-Provides a managed array with reducing / filtering / sorting capabilities with subscription support. 
+# dynamic-array-reducer
+Provides a managed array with non-destructive reducing / filtering / sorting capabilities with subscription / Svelte 
+store support. 
