@@ -52,15 +52,6 @@ export class DynArrayReducer
 
    get sort() { return this.#sort; }
 
-   clear()
-   {
-      if (this.#items.length > 0)
-      {
-         this.#items.length = 0;
-         this.#updated();
-      }
-   }
-
    #dispatchUpdate()
    {
       if (this.#index.isActive())
@@ -71,18 +62,6 @@ export class DynArrayReducer
       {
          this.#updated();
       }
-   }
-
-   push(item)
-   {
-      this.#items.push(item);
-      this.#dispatchUpdate();
-   }
-
-   pop()
-   {
-      this.#items.pop();
-      this.#dispatchUpdate();
    }
 
    subscribe(handler)

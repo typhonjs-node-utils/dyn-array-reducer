@@ -9,7 +9,8 @@ export default class DynArrayReducer
       {
          it(`does it work`, () =>
          {
-            const arrayReducer = new DynArrayReducer([0, 1, 2, 3, 4, 5, 6]);
+            const data = [0, 1, 2, 3, 4, 5, 6];
+            const arrayReducer = new DynArrayReducer(data);
 
             const unsubscribe = arrayReducer.subscribe(
              () => console.log(`!!!! arrayReducer update: ${JSON.stringify([...arrayReducer])}`));
@@ -24,11 +25,13 @@ export default class DynArrayReducer
             console.log(`!! sort.set`);
             arrayReducer.sort.set((a, b) => b - a);
 
-            console.log(`!! push(7)`);
-            arrayReducer.push(7);
+            console.log(`!! data.push(7)`);
+            data.push(7);
+            arrayReducer.index.update();
 
-            console.log(`!! pop`);
-            arrayReducer.pop();
+            console.log(`!! data.pop`);
+            data.pop();
+            arrayReducer.index.update();
 
             console.log(`!! filters.add`);
             arrayReducer.filters.add({ id: 'dynamic modulo', filter: (value) => value % modulo === 0, weight: 0.1 });
@@ -56,14 +59,16 @@ export default class DynArrayReducer
             console.log(`!! filters.clear`);
             arrayReducer.filters.clear();
 
-            console.log(`!! push(10)`);
-            arrayReducer.push(10);
+            console.log(`!! data.push(10)`);
+            data.push(10);
+            arrayReducer.index.update();
 
             console.log(`!! sort.reset`);
             arrayReducer.sort.reset();
 
-            console.log(`!! clear`);
-            arrayReducer.clear();
+            console.log(`!! data.length = 0`);
+            data.length = 0;
+            arrayReducer.index.update();
 
             unsubscribe();
          });
