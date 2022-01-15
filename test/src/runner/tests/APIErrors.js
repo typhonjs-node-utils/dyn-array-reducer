@@ -3,7 +3,7 @@ export default class ModuleLoader
    static run(Module, data, chai)
    {
       const { expect } = chai;
-      const { ArrayReducer } = Module;
+      const { DynamicReducer } = Module;
 
       describe(`API Errors (${data.suitePrefix})`, () =>
       {

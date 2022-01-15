@@ -6,7 +6,7 @@ import { Indexer }         from './Indexer.js';
  * TODO: handle edge cases when there is a sort function, but no filters and items are added / removed.
  * TODO: organize add / remove methods.
  */
-export class ArrayReducer
+export class DynamicReducer
 {
    #items;
 
@@ -26,7 +26,7 @@ export class ArrayReducer
    {
       if (data === null || data === void 0 || typeof data !== 'object' || typeof data[Symbol.iterator] !== 'function')
       {
-         throw new TypeError(`ArrayReducer error: 'data' is not iterable.`);
+         throw new TypeError(`DynamicReducer error: 'data' is not iterable.`);
       }
 
       this.#items = [...data];
@@ -61,7 +61,7 @@ export class ArrayReducer
 
    #dispatchUpdate()
    {
-      if (this.#index.hasIndex())
+      if (this.#index.hasOperations())
       {
          this.#indexAdapter.update();
       }
