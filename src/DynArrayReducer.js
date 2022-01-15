@@ -52,18 +52,6 @@ export class DynArrayReducer
 
    get sort() { return this.#sort; }
 
-   #dispatchUpdate()
-   {
-      if (this.#index.isActive())
-      {
-         this.#index.update();
-      }
-      else
-      {
-         this.#updated();
-      }
-   }
-
    subscribe(handler)
    {
       this.#subscriptions.push(handler); // add handler to the array of subscribers
