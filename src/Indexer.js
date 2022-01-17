@@ -18,6 +18,11 @@ export class Indexer
          }
       };
 
+      // Define a getter on the public API to get the length / count of index array.
+      Object.defineProperties(publicAPI, {
+         'length': { get: function() { return Array.isArray(indexAdapter.index) ? indexAdapter.index.length : 0; } }
+      });
+
       Object.freeze(publicAPI);
 
       indexAdapter.publicAPI = publicAPI;
@@ -72,6 +77,8 @@ export class Indexer
 
    update()
    {
+// console.log(`! DynArrayReducer - update - 0`);
+
       // Clear index if there are no filters or the index length doesn't match the items length.
       if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.sort) ||
        (this.indexAdapter.index && this.hostItems.length !== this.indexAdapter.index.length))
@@ -82,7 +89,7 @@ export class Indexer
       // If there are filters build new index.
       if (this.filtersAdapter.filters)
       {
-// console.log(`! AI - update (filter) - 0`);
+// console.log(`! DynArrayReducer - update (filter) - 0`);
          this.indexAdapter.index = this.hostItems.reduce(this.reduceFn, []);
       }
 
@@ -91,7 +98,7 @@ export class Indexer
          // If there is no index then create one with keys matching host item length.
          if (!this.indexAdapter.index) { this.indexAdapter.index = [...Array(this.hostItems.length).keys()]; }
 
-// console.log(`! AI - update (sort) - 1`);
+// console.log(`! DynArrayReducer - update (sort) - 1`);
 
          this.indexAdapter.index.sort(this.sortFn);
       }

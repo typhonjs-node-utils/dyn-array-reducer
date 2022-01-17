@@ -2,6 +2,7 @@ export class AdapterFilters
 {
    #filtersAdapter;
    #indexUpdate;
+   #mapUnsubscribe = new Map();
 
    constructor(indexUpdate)
    {
@@ -80,6 +81,27 @@ export class AdapterFilters
          {
             this.#filtersAdapter.filters.push(data);
          }
+
+         if (typeof data.filter.subscribe === 'function')
+         {
+            const unsubscribe = data.filter.subscribe(this.#indexUpdate);
+
+            // Ensure that unsubscribe is a function.
+            if (typeof unsubscribe !== 'function')
+            {
+               throw new Error(
+                'DynArrayReducer error: Filter has subscribe function, but no unsubscribe function is returned.');
+            }
+
+            // Ensure that the same filter is not subscribed to multiple times.
+            if (this.#mapUnsubscribe.has(filter))
+            {
+               throw new Error(
+                'DynArrayReducer error: Filter added already has an unsubscribe function registered.');
+            }
+
+            this.#mapUnsubscribe.set(filter, unsubscribe);
+         }
       }
 
       this.#indexUpdate();
@@ -88,12 +110,21 @@ export class AdapterFilters
    clear()
    {
       this.#filtersAdapter.filters.length = 0;
+
+      // Unsubscribe from all filters with subscription support.
+      for (const unsubscribe of this.#mapUnsubscribe.values())
+      {
+         unsubscribe();
+      }
+
+      this.#mapUnsubscribe.clear();
+
       this.#indexUpdate();
    }
 
    *iterator()
    {
-      if (!this.#filtersAdapter.filters) { return; }
+      if (this.#filtersAdapter.filters.length === 0) { return; }
 
       for (const entry of this.#filtersAdapter.filters)
       {
@@ -103,7 +134,7 @@ export class AdapterFilters
 
    remove(...filters)
    {
-      if (!this.#filtersAdapter.filters) { return; }
+      if (this.#filtersAdapter.filters.length === 0) { return; }
 
       const length = this.#filtersAdapter.filters.length;
 
@@ -120,6 +151,14 @@ export class AdapterFilters
             if (this.#filtersAdapter.filters[cntr].filter === actualFilter)
             {
                this.#filtersAdapter.filters.splice(cntr, 1);
+
+               // Invoke any unsubscribe function for given filter then remove from tracking.
+               let unsubscribe = void 0;
+               if (typeof (unsubscribe = this.#mapUnsubscribe.get(actualFilter)) === 'function')
+               {
+                  unsubscribe();
+                  this.#mapUnsubscribe.delete(actualFilter);
+               }
             }
          }
       }
@@ -139,9 +178,22 @@ export class AdapterFilters
 
       const length = this.#filtersAdapter.filters.length;
 
-      this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((value) =>
+      this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((data) =>
       {
-         return !callback.call(callback, value.id, value.filter, value.weight);
+         const keep = !callback.call(callback, data.id, data.filter, data.weight);
+
+         // If not keeping invoke any unsubscribe function for given filter then remove from tracking.
+         if (!keep)
+         {
+            let unsubscribe;
+            if (typeof (unsubscribe = this.#mapUnsubscribe.get(data.filter)) === 'function')
+            {
+               unsubscribe();
+               this.#mapUnsubscribe.delete(data.filter);
+            }
+         }
+
+         return keep;
       });
 
       if (length !== this.#filtersAdapter.filters.length) { this.#indexUpdate(); }
@@ -153,13 +205,24 @@ export class AdapterFilters
 
       const length = this.#filtersAdapter.filters.length;
 
-      this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((value) =>
+      this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((data) =>
       {
-         let keep = false;
+         let remove = false;
 
-         for (const id of ids) { keep |= value.id === id; }
+         for (const id of ids) { remove |= data.id === id; }
 
-         return !keep;
+         // If not keeping invoke any unsubscribe function for given filter then remove from tracking.
+         if (remove)
+         {
+            let unsubscribe;
+            if (typeof (unsubscribe = this.#mapUnsubscribe.get(data.filter)) === 'function')
+            {
+               unsubscribe();
+               this.#mapUnsubscribe.delete(data.filter);
+            }
+         }
+
+         return !remove; // Swap here to actually remove the item via array filter method.
       });
 
       if (length !== this.#filtersAdapter.filters.length) { this.#indexUpdate(); }
