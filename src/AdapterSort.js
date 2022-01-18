@@ -2,6 +2,7 @@ export class AdapterSort
 {
    #sortAdapter;
    #indexUpdate;
+   #unsubscribe;
 
    constructor(indexUpdate)
    {
@@ -16,13 +17,39 @@ export class AdapterSort
 
    set(sort)
    {
+      if (typeof this.#unsubscribe === 'function')
+      {
+         this.#unsubscribe();
+         this.#unsubscribe = void 0;
+      }
+
       this.#sortAdapter.sort = sort;
+
+      if (typeof sort.subscribe === 'function')
+      {
+         this.#unsubscribe = sort.subscribe(this.#indexUpdate);
+
+         // Ensure that unsubscribe is a function.
+         if (typeof this.#unsubscribe !== 'function')
+         {
+            throw new Error(
+             'DynArrayReducer error: Sort has subscribe function, but no unsubscribe function is returned.');
+         }
+      }
+
       this.#indexUpdate();
    }
 
    reset()
    {
       this.#sortAdapter.sort = null;
+
+      if (typeof this.#unsubscribe === 'function')
+      {
+         this.#unsubscribe();
+         this.#unsubscribe = void 0;
+      }
+
       this.#indexUpdate();
    }
 }
