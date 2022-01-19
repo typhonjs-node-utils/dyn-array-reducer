@@ -19,6 +19,12 @@ export class AdapterFilters
 
    add(...filters)
    {
+      /**
+       * Tracks the number of filters added that have subscriber functionality.
+       * @type {number}
+       */
+      let subscribeCount = 0;
+
       for (const filter of filters)
       {
          if (typeof filter !== 'function' && typeof filter !== 'object')
@@ -26,7 +32,8 @@ export class AdapterFilters
             throw new TypeError(`DynamicReducer error: 'filter' is not a function or object.`);
          }
 
-         if (!this.#filtersAdapter.filters) { this.#filtersAdapter.filters = []; }
+         if (!this.#filtersAdapter.filters)
+         { this.#filtersAdapter.filters = []; }
 
          let data = void 0;
 
@@ -101,10 +108,13 @@ export class AdapterFilters
             }
 
             this.#mapUnsubscribe.set(filter, unsubscribe);
+            subscribeCount++;
          }
       }
 
-      this.#indexUpdate();
+      // Filters with subscriber functionality are assumed to immediately invoke the `subscribe` callback. If the
+      // subscriber count is less than the amount of filters added then automatically trigger an index update manually.
+      if (subscribeCount < filters.length) { this.#indexUpdate(); }
    }
 
    clear()

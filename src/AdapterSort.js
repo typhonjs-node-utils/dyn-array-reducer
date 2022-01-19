@@ -36,8 +36,12 @@ export class AdapterSort
              'DynArrayReducer error: Sort has subscribe function, but no unsubscribe function is returned.');
          }
       }
-
-      this.#indexUpdate();
+      else
+      {
+         // A sort function with subscriber functionality are assumed to immediately invoke the `subscribe` callback.
+         // Only manually update the index if there is no subscriber functionality.
+         this.#indexUpdate();
+      }
    }
 
    reset()
