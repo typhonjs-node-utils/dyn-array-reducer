@@ -162,11 +162,11 @@ export class DynArrayReducer
 
       if (this.#index.isActive())
       {
-          for (const entry of this.#indexAdapter.publicAPI) { yield items[entry]; }
+         for (const entry of this.index) { yield items[entry]; }
       }
       else
       {
-          for (const entry of items) { yield entry; }
+         for (const entry of items) { yield entry; }
       }
    }
 }
