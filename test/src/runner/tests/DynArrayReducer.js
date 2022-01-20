@@ -42,20 +42,15 @@ export default class DynArrayReducer
             console.log(`!! index.update`);
             arrayReducer.index.update();
 
-            console.log(`!! filter iterator:\n${JSON.stringify([...arrayReducer.filters.iterator()], null, 3)}`);
+            console.log(`!! filter iterator:\n${JSON.stringify([...arrayReducer.filters], null, 3)}`);
 
             console.log(`!! filters.removeById`);
             // arrayReducer.filters.remove();
+            // arrayReducer.filters.removeBy(({ weight }) => weight > 0.5);
             // arrayReducer.filters.removeById('A');
             arrayReducer.filters.removeById('dynamic modulo');
 
-            // arrayReducer.filters.removeBy((id, filter, weight) => {
-            //    // return weight > 0.5;
-            //    // return id === '> 2';
-            //    // return id !== '> 2';
-            // });
-
-            console.log(`!! filter iterator:\n${JSON.stringify([...arrayReducer.filters.iterator()], null, 3)}`);
+            console.log(`!! filter iterator:\n${JSON.stringify([...arrayReducer.filters], null, 3)}`);
 
             console.log(`!! filters.clear`);
             arrayReducer.filters.clear();

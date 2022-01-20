@@ -22,6 +22,16 @@ export class AdapterFilters
 
    get length() { return this.#filtersAdapter.filters ? this.#filtersAdapter.filters.length : 0; }
 
+   *[Symbol.iterator]()
+   {
+      if (this.#filtersAdapter.filters.length === 0) { return; }
+
+      for (const entry of this.#filtersAdapter.filters)
+      {
+         yield { ...entry };
+      }
+   }
+
    add(...filters)
    {
       /**
@@ -35,11 +45,8 @@ export class AdapterFilters
       {
          if (typeof filter !== 'function' && typeof filter !== 'object')
          {
-            throw new TypeError(`DynamicReducer error: 'filter' is not a function or object.`);
+            throw new TypeError(`DynArrayReducer error: 'filter' is not a function or object.`);
          }
-
-         if (!this.#filtersAdapter.filters)
-         { this.#filtersAdapter.filters = []; }
 
          let data = void 0;
 
@@ -54,25 +61,20 @@ export class AdapterFilters
                break;
 
             case 'object':
-               if (filter.id !== void 0 && typeof filter.id !== 'string')
-               {
-                  throw new TypeError(`DynamicReducer error: 'id' attribute is not undefined or a string.`);
-               }
-
                if (typeof filter.filter !== 'function')
                {
-                  throw new TypeError(`DynamicReducer error: 'filter' attribute is not a function.`);
+                  throw new TypeError(`DynArrayReducer error: 'filter' attribute is not a function.`);
                }
 
-               if (filter.weight !== void 0 && typeof filter.weight !== 'number' &&
+               if (filter.weight !== void 0 && typeof filter.weight !== 'number' ||
                 (filter.weight < 0 || filter.weight > 1))
                {
                   throw new TypeError(
-                   `DynamicReducer error: 'weight' attribute is not a number between '0 - 1' inclusive.`);
+                   `DynArrayReducer error: 'weight' attribute is not a number between '0 - 1' inclusive.`);
                }
 
                data = {
-                  id: filter.id || void 0,
+                  id: filter.id !== void 0 ? filter.id : void 0,
                   filter: filter.filter,
                   weight: filter.weight || 1
                };
@@ -102,7 +104,7 @@ export class AdapterFilters
             // Ensure that unsubscribe is a function.
             if (typeof unsubscribe !== 'function')
             {
-               throw new Error(
+               throw new TypeError(
                 'DynArrayReducer error: Filter has subscribe function, but no unsubscribe function is returned.');
             }
 
@@ -136,16 +138,6 @@ export class AdapterFilters
       this.#mapUnsubscribe.clear();
 
       this.#indexUpdate();
-   }
-
-   *iterator()
-   {
-      if (this.#filtersAdapter.filters.length === 0) { return; }
-
-      for (const entry of this.#filtersAdapter.filters)
-      {
-         yield { ...entry };
-      }
    }
 
    remove(...filters)
@@ -190,13 +182,18 @@ export class AdapterFilters
     */
    removeBy(callback)
    {
-      if (!this.#filtersAdapter.filters) { return; }
+      if (this.#filtersAdapter.filters.length === 0) { return; }
+
+      if (typeof callback !== 'function')
+      {
+         throw new TypeError(`DynArrayReducer error: 'callback' is not a function.`);
+      }
 
       const length = this.#filtersAdapter.filters.length;
 
       this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((data) =>
       {
-         const keep = !callback.call(callback, data.id, data.filter, data.weight);
+         const keep = !callback.call(callback, { ...data });
 
          // If not keeping invoke any unsubscribe function for given filter then remove from tracking.
          if (!keep)
@@ -217,7 +214,7 @@ export class AdapterFilters
 
    removeById(...ids)
    {
-      if (!this.#filtersAdapter.filters) { return; }
+      if (this.#filtersAdapter.filters.length === 0) { return; }
 
       const length = this.#filtersAdapter.filters.length;
 
