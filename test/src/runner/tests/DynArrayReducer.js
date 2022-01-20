@@ -10,14 +10,15 @@ export default class DynArrayReducer
          it(`does it work`, () =>
          {
             const data = [0, 1, 2, 3, 4, 5, 6];
-            const arrayReducer = new DynArrayReducer(data);
+            const filterLessTwo = (value) => value > 2;
+            const filterDynamicModulo = { id: 'dynamic modulo', filter: (value) => value % modulo === 0, weight: 0.1 };
+
+            const arrayReducer = new DynArrayReducer({ data });
 
             const unsubscribe = arrayReducer.subscribe(
              () => console.log(`!!!! arrayReducer update: ${JSON.stringify([...arrayReducer])}`));
 
             let modulo = 2;
-
-            const filterLessTwo = (value) => value > 2;
 
             console.log(`!! filters.add`);
             arrayReducer.filters.add({ id: '> 2', filter: filterLessTwo });
@@ -34,7 +35,7 @@ export default class DynArrayReducer
             arrayReducer.index.update();
 
             console.log(`!! filters.add`);
-            arrayReducer.filters.add({ id: 'dynamic modulo', filter: (value) => value % modulo === 0, weight: 0.1 });
+            arrayReducer.filters.add(filterDynamicModulo);
 
             modulo = 3;
 

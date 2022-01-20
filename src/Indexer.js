@@ -20,7 +20,7 @@ export class Indexer
 
       // Define a getter on the public API to get the length / count of index array.
       Object.defineProperties(publicAPI, {
-         'length': { get: function() { return Array.isArray(indexAdapter.index) ? indexAdapter.index.length : 0; } }
+         length: { get: function() { return Array.isArray(indexAdapter.index) ? indexAdapter.index.length : 0; } }
       });
 
       Object.freeze(publicAPI);

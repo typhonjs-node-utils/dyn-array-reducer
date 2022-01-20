@@ -4,6 +4,11 @@ export class AdapterFilters
    #indexUpdate;
    #mapUnsubscribe = new Map();
 
+   /**
+    * @param {Function} indexUpdate - update function for the indexer.
+    *
+    * @returns {[AdapterFilters, {filters: Function[]}]} Returns this and internal storage for filter adapters.
+    */
    constructor(indexUpdate)
    {
       this.#indexUpdate = indexUpdate;
@@ -21,6 +26,7 @@ export class AdapterFilters
    {
       /**
        * Tracks the number of filters added that have subscriber functionality.
+       *
        * @type {number}
        */
       let subscribeCount = 0;
