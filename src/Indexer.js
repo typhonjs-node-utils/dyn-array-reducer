@@ -40,64 +40,20 @@ export class Indexer
       return [this, indexAdapter];
    }
 
-   initAdapters(filtersAdapter, sortAdapter)
+   /**
+    * Calculates a new hash value for the new index array if any. If the new index array is null then the hash value
+    * is set to null. Set calculated new hash value to the index adapter hash value.
+    *
+    * After hash generation compare old and new hash values and perform an update if they are different. If they are
+    * equal check for array equality between the old and new index array and perform an update if they are not equal.
+    *
+    * @param {number[]}    oldIndex - Old index array.
+    *
+    * @param {number|null} oldHash - Old index hash value.
+    */
+   calcHashUpdate(oldIndex, oldHash)
    {
-      this.filtersAdapter = filtersAdapter;
-      this.sortAdapter = sortAdapter;
-
-      this.reduceFn = function(newIndex, current, currentIndex)
-      {
-         let include = true;
-
-         for (const filter of filtersAdapter.filters) { include = include && filter.filter(current); }
-
-         if (include) { newIndex.push(currentIndex); }
-
-         return newIndex;
-      };
-
-      this.sortFn = (a, b) =>
-      {
-         const actualA = this.hostItems[a];
-         const actualB = this.hostItems[b];
-
-         return this.sortAdapter.sort(actualA, actualB);
-      };
-   }
-
-   isActive()
-   {
-      return this.filtersAdapter.filters.length > 0 || this.sortAdapter.sort ;
-   }
-
-   update()
-   {
-      const oldIndex = this.indexAdapter.index;
-      const oldHash = this.indexAdapter.hash;
-
-      // Clear index if there are no filters and no sort function or the index length doesn't match the items length.
-      if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.sort) ||
-       (this.indexAdapter.index && this.hostItems.length !== this.indexAdapter.index.length))
-      {
-         this.indexAdapter.index = null;
-      }
-
-      // If there are filters build new index.
-      if (this.filtersAdapter.filters.length > 0)
-      {
-         this.indexAdapter.index = this.hostItems.reduce(this.reduceFn, []);
-      }
-
-      if (this.sortAdapter.sort)
-      {
-         // If there is no index then create one with keys matching host item length.
-         if (!this.indexAdapter.index) { this.indexAdapter.index = [...Array(this.hostItems.length).keys()]; }
-
-         this.indexAdapter.index.sort(this.sortFn);
-      }
-
-      // Calculate hash
-      let newHash = 0;
+      let newHash = null;
       const newIndex = this.indexAdapter.index;
 
       if (newIndex)
@@ -107,17 +63,100 @@ export class Indexer
             newHash ^= newIndex[cntr] + 0x9e3779b9 + (newHash << 6) + (newHash >> 2);
          }
       }
-      else
-      {
-         newHash = null;
-      }
-
-      // Post an update to subscribers if old & new hash doesn't match. If they do match check array equality.
-      const postUpdate = oldHash === newHash ? !s_ARRAY_EQUALS(oldIndex, newIndex) : true;
 
       this.indexAdapter.hash = newHash;
 
-      if (postUpdate) { this.hostUpdate(); }
+      if (oldHash === newHash ? !s_ARRAY_EQUALS(oldIndex, newIndex) : true) { this.hostUpdate(); }
+   }
+
+   initAdapters(filtersAdapter, sortAdapter)
+   {
+      this.filtersAdapter = filtersAdapter;
+      this.sortAdapter = sortAdapter;
+
+      this.sortFn = (a, b) =>
+      {
+         // const actualA = this.hostItems[a];
+         // const actualB = this.hostItems[b];
+         //
+         // return this.sortAdapter.sort(actualA, actualB);
+
+         return this.sortAdapter.sort(this.hostItems[a], this.hostItems[b]);
+      };
+   }
+
+   isActive()
+   {
+      return this.filtersAdapter.filters.length > 0 || this.sortAdapter.sort ;
+   }
+
+   /**
+    * Provides the custom filter / reduce step that is ~25-40% faster than implementing with `Array.reduce`.
+    *
+    * Note: Other loop unrolling techniques like Duff's Device gave a slight faster lower bound on large data sets,
+    * but the maintenance factor is not worth the extra complication.
+    *
+    * @returns {number[]} New filtered index array.
+    */
+   reduceImpl()
+   {
+      const data = [];
+
+      const filters = this.filtersAdapter.filters;
+
+      let include = true;
+
+      for (let cntr = 0, length = this.hostItems.length; cntr < length; cntr++)
+      {
+         include = true;
+
+         for (let filCntr = 0, filLength = filters.length; filCntr < filLength; filCntr++)
+         {
+            if (!filters[filCntr].filter(this.hostItems[cntr]))
+            {
+               include = false;
+               break;
+            }
+         }
+
+         if (include) { data.push(cntr); }
+      }
+
+      return data;
+   }
+
+   sortImpl(a, b)
+   {
+      // const actualA = this.hostItems[a];
+      // const actualB = this.hostItems[b];
+
+      return this.sortAdapter.sort(this.hostItems[a], this.hostItems[b]);
+   }
+
+   update()
+   {
+      const oldIndex = this.indexAdapter.index;
+      const oldHash = this.indexAdapter.hash;
+
+      // Clear index if there are no filters and no sort function or the index length doesn't match the item length.
+      if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.sort) ||
+       (this.indexAdapter.index && this.hostItems.length !== this.indexAdapter.index.length))
+      {
+         this.indexAdapter.index = null;
+      }
+
+      // If there are filters build new index.
+      if (this.filtersAdapter.filters.length > 0) { this.indexAdapter.index = this.reduceImpl(); }
+
+      if (this.sortAdapter.sort)
+      {
+         // If there is no index then create one with keys matching host item length.
+         if (!this.indexAdapter.index) { this.indexAdapter.index = [...Array(this.hostItems.length).keys()]; }
+
+         this.indexAdapter.index.sort(this.sortFn);
+      }
+
+      this.calcHashUpdate(oldIndex, oldHash);
    }
 }
 

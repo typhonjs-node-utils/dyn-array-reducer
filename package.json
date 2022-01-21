@@ -16,7 +16,8 @@
   "dependencies": {
   },
   "devDependencies": {
-    "@typhonjs-utils/build-test": "^0.2.0"
+    "@typhonjs-utils/build-test": "^0.2.0",
+    "@typhonjs-build-test/testsuite-runner": "^0.0.5"
   },
   "engines": {
     "node": ">=12.0.0"
