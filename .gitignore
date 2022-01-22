@@ -6,4 +6,5 @@ npm-debug.log
 /.dts/
 /.nyc_output/
 /coverage/
+/_dist/
 node_modules

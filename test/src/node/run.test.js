@@ -1,6 +1,6 @@
 import fs                  from 'fs-extra';
 
-import * as Module         from '../../../dist/DynArrayReducer.js';
+import * as Module         from '../../../_dist/DynArrayReducer.js';
 
 import TestsuiteRunner     from '../runner/TestsuiteRunner.js';
 
