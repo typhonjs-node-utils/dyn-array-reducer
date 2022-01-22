@@ -1,13 +1,13 @@
 /**
  * @param {object}                           opts - Test options
  *
- * @param {import('../../../../../types')}   opts.Module - Module to test
+ * @param {import('../../../../types')}      opts.Module - Module to test
  *
  * @param {object}                           opts.chai - Chai
  */
-export function run({ Module, chai })
+export function run({ Module })
 {
-   const { assert } = chai;
+   // const { assert } = chai;
    const { DynArrayReducer } = Module;
 
    describe(`DynArrayReducer`, () =>

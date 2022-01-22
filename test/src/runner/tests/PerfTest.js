@@ -11,7 +11,7 @@ export function run({ Module })
    {
       it(`large`, () =>
       {
-         let modulo = 2;
+         const modulo = 2;
          const data = [...Array(10000).keys()];
          const filterDynamicModulo = { id: 'dynamic modulo', filter: (value) => value % modulo === 0, weight: 0.1 };
 
