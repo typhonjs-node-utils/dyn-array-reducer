@@ -26,7 +26,7 @@ type FilterData = {
      */
     weight?: number;
 };
-type IndexerAPI = Iterable<number>;
+type IndexerAPI = any & Iterable<number>;
 
 declare class AdapterFilters {
     /**
@@ -91,7 +91,7 @@ declare class DynArrayReducer {
      *
      * @returns {IndexerAPI} Indexer API.
      */
-    get index(): IndexerAPI;
+    get index(): any;
     /**
      * Gets the main data / items length.
      *

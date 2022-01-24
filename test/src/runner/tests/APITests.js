@@ -14,17 +14,65 @@ export function run({ Module, chai })
    {
       describe(`Main API`, () =>
       {
+         it(`iterator no values`, () =>
+         {
+            const dynArray = new DynArrayReducer([]);
+            assert.deepEqual([...dynArray], []);
+         });
+
          it(`length (getter)`, () =>
          {
             const dynArray = new DynArrayReducer([1, 2]);
             assert.equal(dynArray.length, 2, 'length (getter) returns 2');
          });
 
-         // it(`non-iterable argument`, () =>
-         // {
-         //    expect(() => new DynArrayReducer(false)).to.throw(TypeError,
-         //     `DynArrayReducer error: 'data' is not iterable.`);
-         // });
+         it(`set from DynData`, () =>
+         {
+            const dynArray = new DynArrayReducer({
+               data: [1, 3, 2],
+               filters: [(val) => val > 1],
+               sort: (a, b) => b - a
+            });
+
+            assert.deepEqual([...dynArray], [3, 2]);
+         });
+
+         it(`set from DynData / iterable`, () =>
+         {
+            const dynArray = new DynArrayReducer({
+               data: new Set([1, 2, 3]),
+               filters: [(val) => val > 1],
+               sort: (a, b) => b - a
+            });
+
+            assert.deepEqual([...dynArray], [3, 2]);
+         });
+
+         it(`subscribe / notify / unsubscribe`, () =>
+         {
+            const data = [1, 2];
+
+            const dynArray = new DynArrayReducer({
+               data,
+               filters: [(val) => val > 1],
+               sort: (a, b) => b - a
+            });
+
+            let callbackSub = 0;
+
+            assert.equal(callbackSub, 0);
+
+            const unsubscribe = dynArray.subscribe(() => callbackSub++);
+
+            assert.equal(callbackSub, 1);
+
+            data.push(3);
+            dynArray.index.update();
+
+            assert.equal(callbackSub, 2);
+
+            unsubscribe();
+         });
       });
 
       describe(`AdapterFilter (filters)`, () =>
@@ -71,6 +119,24 @@ export function run({ Module, chai })
 
             assert.deepEqual([...dynArray.filters].map((f) => ({ id: f.id, weight: f.weight })),
              [{ id: 'a', weight: 0.1 }, { id: 'b', weight: 0.5 }, { id: 'c', weight: 1 }], 'add multiple w/ weight');
+         });
+
+         it(`add - filter exclude / add value to array / regenerate index`, () =>
+         {
+            const array = [1, 2];
+
+            const dynArray = new DynArrayReducer({
+               data: array,
+               filters: [(value) => value > 1]
+            });
+
+            assert.deepEqual([...dynArray], [2], 'filter excludes 1 from index');
+
+            // This forces the index to be regenerated.
+            array.push(3);
+            dynArray.index.update();
+
+            assert.deepEqual([...dynArray], [2, 3], 'filter excludes 1 from index');
          });
 
          it(`clear w/ unsubscribe`, () =>
@@ -306,6 +372,76 @@ export function run({ Module, chai })
 
             assert.deepEqual([...dynArray], [1, 2], 'initial order');
             assert.isTrue(unsubscribeCalled);
+         });
+      });
+
+      describe(`Indexer`, () =>
+      {
+         it(`iterator no index set`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            assert.deepEqual([...dynArray.index], [], 'no index');
+         });
+
+         it(`iterator index set`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            assert.deepEqual([...dynArray.index], [], 'no index');
+
+            dynArray.sort.set((a, b) => b - a);
+
+            assert.deepEqual([...dynArray.index], [1, 0], 'sorted index');
+
+            dynArray.sort.reset();
+
+            assert.deepEqual([...dynArray.index], [], 'no index');
+         });
+
+         it(`sort set / hash is number / reset & hash is null`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            assert.isNull(dynArray.index.hash);
+
+            dynArray.sort.set((a, b) => b - a);
+
+            assert.isNumber(dynArray.index.hash);
+
+            dynArray.sort.reset();
+
+            assert.isNull(dynArray.index.hash);
+         });
+
+         it(`isActive is false / sort set & isActive is true / reset & isActive is false`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            assert.isFalse(dynArray.index.isActive);
+
+            dynArray.sort.set((a, b) => b - a);
+
+            assert.isTrue(dynArray.index.isActive);
+
+            dynArray.sort.reset();
+
+            assert.isFalse(dynArray.index.isActive);
+         });
+
+         it(`length when index defined and reset`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            assert.equal(dynArray.index.length, 0);
+
+            dynArray.sort.set((a, b) => b - a);
+
+            assert.equal(dynArray.index.length, 2);
+
+            dynArray.sort.reset();
+
+            assert.equal(dynArray.index.length, 0);
          });
       });
    });

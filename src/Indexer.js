@@ -82,7 +82,7 @@ export class Indexer
 
    isActive()
    {
-      return this.filtersAdapter.filters.length > 0 || this.sortAdapter.compareFn ;
+      return this.filtersAdapter.filters.length > 0 || this.sortAdapter.compareFn !== null;
    }
 
    /**
@@ -160,10 +160,13 @@ function s_ARRAY_EQUALS(a, b)
 {
    if (a === b) { return true; }
    if (a === null || b === null) { return false; }
+
+   /* c8 ignore next */
    if (a.length !== b.length) { return false; }
 
    for (let cntr = a.length; --cntr >= 0;)
    {
+      /* c8 ignore next */
       if (a[cntr] !== b[cntr]) { return false; }
    }
 

@@ -19,9 +19,13 @@
  */
 
 /**
- * @typedef {Iterable<number>} IndexerAPI
+ * @typedef {Object & Iterable<number>} IndexerAPI
  *
- * @property {number} length - Getter returning length of reduced / indexed elements.
+ * @property {number|null} hash - Current hash value of the index.
  *
- * @property {Function} update - Manually invoke an update of the index.
+ * @property {boolean}     isActive - Returns whether the indexer is active (IE filter or sort function active).
+ *
+ * @property {number}      length - Getter returning length of reduced / indexed elements.
+ *
+ * @property {Function}    update - Manually invoke an update of the index.
  */
