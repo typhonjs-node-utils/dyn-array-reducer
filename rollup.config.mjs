@@ -15,7 +15,7 @@ export default () =>
    return [{   // This bundle is for the Node distribution.
          input: ['src/DynArrayReducer.js'],
          output: [{
-            file: `./_dist/DynArrayReducer.js`,
+            file: `./dist/DynArrayReducer.js`,
             format: 'es',
             preferConst: true,
             sourcemap: s_SOURCEMAP,

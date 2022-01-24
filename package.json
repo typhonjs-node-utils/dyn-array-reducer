@@ -7,12 +7,12 @@
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
   ],
   "type": "module",
-  "main": "_dist/DynArrayReducer.js",
-  "module": "_dist/DynArrayReducer.js",
+  "main": "dist/DynArrayReducer.js",
+  "module": "dist/DynArrayReducer.js",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
-      "import": "./_dist/DynArrayReducer.js"
+      "import": "./dist/DynArrayReducer.js"
     },
     "./package.json": "./package.json"
   },
