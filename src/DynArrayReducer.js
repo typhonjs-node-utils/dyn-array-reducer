@@ -107,7 +107,7 @@ export class DynArrayReducer
    /**
     * Returns the Indexer public API.
     *
-    * @returns {IndexerAPI} Indexer API.
+    * @returns {IndexerAPI & Iterable<number>} Indexer API - is also iterable.
     */
    get index() { return this.#indexAdapter.publicAPI; }
 
@@ -154,6 +154,12 @@ export class DynArrayReducer
       for (let cntr = 0; cntr < subscriptions.length; cntr++) { subscriptions[cntr](this); }
    }
 
+   /**
+    * Provides an iterator for data stored in DynArrayReducer.
+    *
+    * @returns {Generator<*, void, *>} Generator / iterator of all data.
+    * @yields {*}
+    */
    *[Symbol.iterator]()
    {
       const items = this.#items;

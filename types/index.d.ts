@@ -26,7 +26,24 @@ type FilterData = {
      */
     weight?: number;
 };
-type IndexerAPI = any & Iterable<number>;
+type IndexerAPI = {
+    /**
+     * - Current hash value of the index.
+     */
+    hash: number | null;
+    /**
+     * - Returns whether the indexer is active (IE filter or sort function active).
+     */
+    isActive: boolean;
+    /**
+     * - Getter returning length of reduced / indexed elements.
+     */
+    length: number;
+    /**
+     * - Manually invoke an update of the index.
+     */
+    update: Function;
+};
 
 declare class AdapterFilters {
     /**
@@ -53,7 +70,13 @@ declare class AdapterFilters {
      */
     removeBy(callback: Function): void;
     removeById(...ids: any[]): void;
-    [Symbol.iterator](): Generator<any, void, unknown>;
+    /**
+     * Provides an iterator for filters.
+     *
+     * @returns {Generator<number|undefined, FilterData, *>} Generator / iterator of filters.
+     * @yields {FilterData}
+     */
+    [Symbol.iterator](): Generator<number | undefined, FilterData, any>;
     #private;
 }
 
@@ -89,9 +112,9 @@ declare class DynArrayReducer {
     /**
      * Returns the Indexer public API.
      *
-     * @returns {IndexerAPI} Indexer API.
+     * @returns {IndexerAPI & Iterable<number>} Indexer API - is also iterable.
      */
-    get index(): any;
+    get index(): IndexerAPI & Iterable<number>;
     /**
      * Gets the main data / items length.
      *
@@ -109,7 +132,13 @@ declare class DynArrayReducer {
      * @returns {(function(): void)} Unsubscribe function.
      */
     subscribe(handler: Function): (() => void);
-    [Symbol.iterator](): Generator<any, void, unknown>;
+    /**
+     * Provides an iterator for data stored in DynArrayReducer.
+     *
+     * @returns {Generator<*, void, *>} Generator / iterator of all data.
+     * @yields {*}
+     */
+    [Symbol.iterator](): Generator<any, void, any>;
     #private;
 }
 

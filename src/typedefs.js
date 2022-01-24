@@ -19,7 +19,7 @@
  */
 
 /**
- * @typedef {Object & Iterable<number>} IndexerAPI
+ * @typedef {Object} IndexerAPI
  *
  * @property {number|null} hash - Current hash value of the index.
  *

@@ -22,6 +22,12 @@ export class AdapterFilters
 
    get length() { return this.#filtersAdapter.filters.length; }
 
+   /**
+    * Provides an iterator for filters.
+    *
+    * @returns {Generator<number|undefined, FilterData, *>} Generator / iterator of filters.
+    * @yields {FilterData}
+    */
    *[Symbol.iterator]()
    {
       if (this.#filtersAdapter.filters.length === 0) { return; }
