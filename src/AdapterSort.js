@@ -8,14 +8,20 @@ export class AdapterSort
    {
       this.#indexUpdate = indexUpdate;
 
-      this.#sortAdapter = { sort: null };
+      this.#sortAdapter = { compareFn: null };
 
       Object.seal(this);
 
       return [this, this.#sortAdapter];
    }
 
-   set(sort)
+   /**
+    * @param {Function}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
+    * < 0 to sort a before b; or 0 to keep original order of a & b.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters
+    */
+   set(compareFn)
    {
       if (typeof this.#unsubscribe === 'function')
       {
@@ -23,17 +29,29 @@ export class AdapterSort
          this.#unsubscribe = void 0;
       }
 
-      this.#sortAdapter.sort = sort;
-
-      if (typeof sort.subscribe === 'function')
+      if (typeof compareFn === 'function')
       {
-         this.#unsubscribe = sort.subscribe(this.#indexUpdate);
+         this.#sortAdapter.compareFn = compareFn;
+      }
+      else
+      {
+         const oldCompareFn = this.#sortAdapter.compareFn;
+         this.#sortAdapter.compareFn = null;
+
+         // Update index if the old compare function exists.
+         if (typeof oldCompareFn === 'function') { this.#indexUpdate(); }
+         return;
+      }
+
+      if (typeof compareFn.subscribe === 'function')
+      {
+         this.#unsubscribe = compareFn.subscribe(this.#indexUpdate);
 
          // Ensure that unsubscribe is a function.
          if (typeof this.#unsubscribe !== 'function')
          {
             throw new Error(
-             'DynArrayReducer error: Sort has subscribe function, but no unsubscribe function is returned.');
+             `DynArrayReducer error: 'compareFn' has subscribe function, but no unsubscribe function is returned.`);
          }
       }
       else
@@ -46,7 +64,9 @@ export class AdapterSort
 
    reset()
    {
-      this.#sortAdapter.sort = null;
+      const oldCompareFn = this.#sortAdapter.compareFn;
+
+      this.#sortAdapter.compareFn = null;
 
       if (typeof this.#unsubscribe === 'function')
       {
@@ -54,6 +74,7 @@ export class AdapterSort
          this.#unsubscribe = void 0;
       }
 
-      this.#indexUpdate();
+      // Only update index if an old compare function is set.
+      if (typeof oldCompareFn === 'function') { this.#indexUpdate(); }
    }
 }

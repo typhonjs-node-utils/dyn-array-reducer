@@ -235,5 +235,78 @@ export function run({ Module, chai })
             assert.isTrue(unsubscribeCalled);
          });
       });
+
+      describe(`AdapterSort`, () =>
+      {
+         it(`set sort`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            dynArray.sort.set((a, b) => b - a);
+
+            assert.deepEqual([...dynArray], [2, 1], 'reverse sorts numbers');
+         });
+
+         it(`set sort w/ subscribe`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            let unsubscribeCalled = false;
+
+            const sort = (a, b) => b - a;
+            sort.subscribe = (handler) =>
+            {
+               handler(sort); // Proper subscribe API to kick off an update must invoke the handler on subscribe.
+               return () => unsubscribeCalled = true;
+            };
+
+            dynArray.sort.set(sort);
+
+            assert.deepEqual([...dynArray], [2, 1], 'reverse sorts numbers');
+
+            dynArray.sort.reset();
+
+            assert.deepEqual([...dynArray], [1, 2], 'initial order');
+            assert.isTrue(unsubscribeCalled);
+         });
+
+         it(`set sort w/ subscribe - no handler callback`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            let unsubscribeCalled = false;
+
+            const sort = (a, b) => b - a;
+            sort.subscribe = () => () => unsubscribeCalled = true;
+
+            dynArray.sort.set(sort);
+
+            // Manual update as the subscribe function of `sort` does not follow the subscribe protocol.
+            dynArray.index.update();
+
+            assert.deepEqual([...dynArray], [2, 1], 'reverse sorts numbers');
+
+            dynArray.sort.reset();
+
+            assert.deepEqual([...dynArray], [1, 2], 'initial order');
+            assert.isTrue(unsubscribeCalled);
+         });
+
+         it(`set sort w/ subscribe / unsubscribe`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            let unsubscribeCalled = false;
+
+            const sort = (a, b) => b - a;
+            sort.subscribe = () => () => unsubscribeCalled = true;
+
+            dynArray.sort.set(sort);
+            dynArray.sort.set(null);
+
+            assert.deepEqual([...dynArray], [1, 2], 'initial order');
+            assert.isTrue(unsubscribeCalled);
+         });
+      });
    });
 }

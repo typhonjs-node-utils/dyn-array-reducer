@@ -137,5 +137,19 @@ export function run({ Module, chai })
              `DynArrayReducer error: 'callback' is not a function.`);
          });
       });
+
+      describe(`AdapterSort errors`, () =>
+      {
+         it(`set - compareFn w/ subscribe - no unsubscribe`, () =>
+         {
+            const dar = new DynArrayReducer([]);
+
+            const compareFn = () => null;
+            compareFn.subscribe = () => null;
+
+            expect(() => dar.sort.set(compareFn)).to.throw(Error,
+             `DynArrayReducer error: 'compareFn' has subscribe function, but no unsubscribe function is returned.`);
+         });
+      });
    });
 }

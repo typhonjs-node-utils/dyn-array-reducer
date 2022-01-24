@@ -76,13 +76,13 @@ export class Indexer
 
       this.sortFn = (a, b) =>
       {
-         return this.sortAdapter.sort(this.hostItems[a], this.hostItems[b]);
+         return this.sortAdapter.compareFn(this.hostItems[a], this.hostItems[b]);
       };
    }
 
    isActive()
    {
-      return this.filtersAdapter.filters.length > 0 || this.sortAdapter.sort ;
+      return this.filtersAdapter.filters.length > 0 || this.sortAdapter.compareFn ;
    }
 
    /**
@@ -126,7 +126,7 @@ export class Indexer
       const oldHash = this.indexAdapter.hash;
 
       // Clear index if there are no filters and no sort function or the index length doesn't match the item length.
-      if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.sort) ||
+      if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.compareFn) ||
        (this.indexAdapter.index && this.hostItems.length !== this.indexAdapter.index.length))
       {
          this.indexAdapter.index = null;
@@ -135,7 +135,7 @@ export class Indexer
       // If there are filters build new index.
       if (this.filtersAdapter.filters.length > 0) { this.indexAdapter.index = this.reduceImpl(); }
 
-      if (this.sortAdapter.sort)
+      if (this.sortAdapter.compareFn)
       {
          // If there is no index then create one with keys matching host item length.
          if (!this.indexAdapter.index) { this.indexAdapter.index = [...Array(this.hostItems.length).keys()]; }

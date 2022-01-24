@@ -59,7 +59,13 @@ declare class AdapterFilters {
 
 declare class AdapterSort {
     constructor(indexUpdate: any);
-    set(sort: any): void;
+    /**
+     * @param {Function}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
+     * < 0 to sort a before b; or 0 to keep original order of a & b.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters
+     */
+    set(compareFn: Function): void;
     reset(): void;
     #private;
 }
