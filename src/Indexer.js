@@ -76,11 +76,6 @@ export class Indexer
 
       this.sortFn = (a, b) =>
       {
-         // const actualA = this.hostItems[a];
-         // const actualB = this.hostItems[b];
-         //
-         // return this.sortAdapter.sort(actualA, actualB);
-
          return this.sortAdapter.sort(this.hostItems[a], this.hostItems[b]);
       };
    }
@@ -123,14 +118,6 @@ export class Indexer
       }
 
       return data;
-   }
-
-   sortImpl(a, b)
-   {
-      // const actualA = this.hostItems[a];
-      // const actualB = this.hostItems[b];
-
-      return this.sortAdapter.sort(this.hostItems[a], this.hostItems[b]);
    }
 
    update()

@@ -20,7 +20,7 @@ export class AdapterFilters
       return [this, this.#filtersAdapter];
    }
 
-   get length() { return this.#filtersAdapter.filters ? this.#filtersAdapter.filters.length : 0; }
+   get length() { return this.#filtersAdapter.filters.length; }
 
    *[Symbol.iterator]()
    {
@@ -32,6 +32,9 @@ export class AdapterFilters
       }
    }
 
+   /**
+    * @param {...(Function|FilterData)}   filters -
+    */
    add(...filters)
    {
       /**

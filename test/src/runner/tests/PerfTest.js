@@ -1,7 +1,7 @@
 /**
- * @param {object}                           opts - Test options
+ * @param {object}                        opts - Test options
  *
- * @param {import('../../../../../types')}   opts.Module - Module to test
+ * @param {import('../../../../types')}   opts.Module - Module to test
  */
 export function run({ Module })
 {

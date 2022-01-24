@@ -6,11 +6,25 @@ type DynData = {
     /**
      * -
      */
-    filters?: Iterable<Function>;
+    filters?: Iterable<Function | FilterData>;
     /**
      * -
      */
     sort?: Function;
+};
+type FilterData = {
+    /**
+     * - An ID associated with this filter. Can be used to remove the filter.
+     */
+    id?: any;
+    /**
+     * - Filter function that takes a value argument and returns a truthy value to keep it.
+     */
+    filter: Function;
+    /**
+     * - A number between 0 and 1 inclusive to position this filter against others.
+     */
+    weight?: number;
 };
 type IndexerAPI = Iterable<number>;
 
@@ -22,7 +36,10 @@ declare class AdapterFilters {
      */
     constructor(indexUpdate: Function);
     get length(): number;
-    add(...filters: any[]): void;
+    /**
+     * @param {...(Function|FilterData)}   filters -
+     */
+    add(...filters: (Function | FilterData)[]): void;
     clear(): void;
     remove(...filters: any[]): void;
     /**
