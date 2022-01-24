@@ -115,6 +115,17 @@ export function run({ Module, chai })
              `DynArrayReducer error: Filter has subscribe function, but no unsubscribe function is returned.`);
          });
 
+         it(`add - duplicate filter w/ subscribe`, () =>
+         {
+            const dar = new DynArrayReducer([]);
+
+            const filter = () => null;
+            filter.subscribe = () => () => null;
+
+            expect(() => dar.filters.add(filter, filter)).to.throw(Error,
+             `DynArrayReducer error: Filter added already has an unsubscribe function registered.`);
+         });
+
          // removeBy ----------------------------------------------------------------------------------------------
 
          it(`removeBy - callback not a function`, () =>

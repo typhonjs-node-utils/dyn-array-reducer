@@ -112,13 +112,13 @@ export class AdapterFilters
             }
 
             // Ensure that the same filter is not subscribed to multiple times.
-            if (this.#mapUnsubscribe.has(filter))
+            if (this.#mapUnsubscribe.has(data.filter))
             {
                throw new Error(
                 'DynArrayReducer error: Filter added already has an unsubscribe function registered.');
             }
 
-            this.#mapUnsubscribe.set(filter, unsubscribe);
+            this.#mapUnsubscribe.set(data.filter, unsubscribe);
             subscribeCount++;
          }
       }
@@ -143,11 +143,14 @@ export class AdapterFilters
       this.#indexUpdate();
    }
 
+   /**
+    * @param {...(Function|FilterData)}   filters -
+    */
    remove(...filters)
    {
-      if (this.#filtersAdapter.filters.length === 0) { return; }
-
       const length = this.#filtersAdapter.filters.length;
+
+      if (length === 0) { return; }
 
       for (const data of filters)
       {
@@ -174,6 +177,7 @@ export class AdapterFilters
          }
       }
 
+      // Update the index a filter was removed.
       if (length !== this.#filtersAdapter.filters.length) { this.#indexUpdate(); }
    }
 
@@ -185,21 +189,20 @@ export class AdapterFilters
     */
    removeBy(callback)
    {
-      if (this.#filtersAdapter.filters.length === 0) { return; }
+      const length = this.#filtersAdapter.filters.length;
+
+      if (length === 0) { return; }
 
       if (typeof callback !== 'function')
       {
          throw new TypeError(`DynArrayReducer error: 'callback' is not a function.`);
       }
 
-      const length = this.#filtersAdapter.filters.length;
-
       this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((data) =>
       {
-         const keep = !callback.call(callback, { ...data });
+         const remove = callback.call(callback, { ...data });
 
-         // If not keeping invoke any unsubscribe function for given filter then remove from tracking.
-         if (!keep)
+         if (remove)
          {
             let unsubscribe;
             if (typeof (unsubscribe = this.#mapUnsubscribe.get(data.filter)) === 'function')
@@ -209,7 +212,8 @@ export class AdapterFilters
             }
          }
 
-         return keep;
+         // Reverse remove boolean to properly filter / remove this filter.
+         return !remove;
       });
 
       if (length !== this.#filtersAdapter.filters.length) { this.#indexUpdate(); }
@@ -217,9 +221,9 @@ export class AdapterFilters
 
    removeById(...ids)
    {
-      if (this.#filtersAdapter.filters.length === 0) { return; }
-
       const length = this.#filtersAdapter.filters.length;
+
+      if (length === 0) { return; }
 
       this.#filtersAdapter.filters = this.#filtersAdapter.filters.filter((data) =>
       {

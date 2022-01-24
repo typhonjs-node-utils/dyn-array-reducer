@@ -41,7 +41,10 @@ declare class AdapterFilters {
      */
     add(...filters: (Function | FilterData)[]): void;
     clear(): void;
-    remove(...filters: any[]): void;
+    /**
+     * @param {...(Function|FilterData)}   filters -
+     */
+    remove(...filters: (Function | FilterData)[]): void;
     /**
      * Remove filters by the provided callback. The callback takes 3 parameters: `id`, `filter`, and `weight`.
      * Any truthy value returned will remove that filter.
