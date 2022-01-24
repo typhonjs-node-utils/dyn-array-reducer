@@ -1,9 +1,17 @@
+/**
+ * @template T
+ */
 export class AdapterSort
 {
    #sortAdapter;
    #indexUpdate;
    #unsubscribe;
 
+   /**
+    * @param {Function} indexUpdate - Function to update indexer.
+    *
+    * @returns {[AdapterSort<T>, {compareFn: CompareFn<T>}]} This and the internal sort adapter data.
+    */
    constructor(indexUpdate)
    {
       this.#indexUpdate = indexUpdate;
@@ -16,7 +24,7 @@ export class AdapterSort
    }
 
    /**
-    * @param {Function}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
+    * @param {CompareFn<T>}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
     * < 0 to sort a before b; or 0 to keep original order of a & b.
     *
     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters

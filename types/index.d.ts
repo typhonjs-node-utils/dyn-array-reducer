@@ -1,26 +1,37 @@
-type DynData = {
+/**
+ * - A callback function that compares two values. Return > 0 to sort b
+ * before a; * < 0 to sort a before b; or 0 to keep original order of a & b.
+ */
+type CompareFn<T> = (arg0: T, arg1: T) => boolean;
+/**
+ * - Filter function that takes a value argument and returns a truthy value to
+ *                                            keep it.
+ */
+type FilterFn<T> = (arg0: T) => boolean;
+type DynData<T> = {
     /**
      * -
      */
-    data: Iterable<any>;
+    data: Iterable<T>;
     /**
      * -
      */
-    filters?: Iterable<Function | FilterData>;
+    filters?: Iterable<FilterFn<T> | FilterData<T>>;
     /**
      * -
      */
-    sort?: Function;
+    sort?: CompareFn<T>;
 };
-type FilterData = {
+type FilterData<T> = {
     /**
      * - An ID associated with this filter. Can be used to remove the filter.
      */
     id?: any;
     /**
-     * - Filter function that takes a value argument and returns a truthy value to keep it.
+     * - Filter function that takes a value argument and returns a truthy value to
+     *   keep it.
      */
-    filter: Function;
+    filter: FilterFn<T>;
     /**
      * - A number between 0 and 1 inclusive to position this filter against others.
      */
@@ -45,50 +56,64 @@ type IndexerAPI = {
     update: Function;
 };
 
-declare class AdapterFilters {
+/**
+ * @template T
+ */
+declare class AdapterFilters<T> {
     /**
      * @param {Function} indexUpdate - update function for the indexer.
      *
-     * @returns {[AdapterFilters, {filters: Function[]}]} Returns this and internal storage for filter adapters.
+     * @returns {[AdapterFilters<T>, {filters: FilterData<T>[]}]} Returns this and internal storage for filter adapters.
      */
     constructor(indexUpdate: Function);
+    /**
+     * @returns {number} Returns the length of the
+     */
     get length(): number;
     /**
-     * @param {...(Function|FilterData)}   filters -
+     * @param {...(FilterFn<T>|FilterData<T>)}   filters -
      */
-    add(...filters: (Function | FilterData)[]): void;
+    add(...filters: (FilterFn<T> | FilterData<T>)[]): void;
     clear(): void;
     /**
-     * @param {...(Function|FilterData)}   filters -
+     * @param {...(FilterFn<T>|FilterData<T>)}   filters -
      */
-    remove(...filters: (Function | FilterData)[]): void;
+    remove(...filters: (FilterFn<T> | FilterData<T>)[]): void;
     /**
      * Remove filters by the provided callback. The callback takes 3 parameters: `id`, `filter`, and `weight`.
      * Any truthy value returned will remove that filter.
      *
-     * @param {Function} callback - Callback function to evaluate each filter entry.
+     * @param {function(*, FilterFn<T>, number): boolean} callback - Callback function to evaluate each filter entry.
      */
-    removeBy(callback: Function): void;
+    removeBy(callback: (arg0: any, arg1: FilterFn<T>, arg2: number) => boolean): void;
     removeById(...ids: any[]): void;
     /**
      * Provides an iterator for filters.
      *
-     * @returns {Generator<number|undefined, FilterData, *>} Generator / iterator of filters.
-     * @yields {FilterData}
+     * @returns {Generator<number|undefined, FilterData<T>, *>} Generator / iterator of filters.
+     * @yields {FilterData<T>}
      */
-    [Symbol.iterator](): Generator<number | undefined, FilterData, any>;
+    [Symbol.iterator](): Generator<number | undefined, FilterData<T>, any>;
     #private;
 }
 
-declare class AdapterSort {
-    constructor(indexUpdate: any);
+/**
+ * @template T
+ */
+declare class AdapterSort<T> {
     /**
-     * @param {Function}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
+     * @param {Function} indexUpdate - Function to update indexer.
+     *
+     * @returns {[AdapterSort<T>, {compareFn: CompareFn<T>}]} This and the internal sort adapter data.
+     */
+    constructor(indexUpdate: Function);
+    /**
+     * @param {CompareFn<T>}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
      * < 0 to sort a before b; or 0 to keep original order of a & b.
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters
      */
-    set(compareFn: Function): void;
+    set(compareFn: CompareFn<T>): void;
     reset(): void;
     #private;
 }
@@ -96,19 +121,21 @@ declare class AdapterSort {
 /**
  * Provides a managed array with non-destructive reducing / filtering / sorting capabilities with subscription /
  * Svelte store support.
+ *
+ * @template T
  */
-declare class DynArrayReducer {
+declare class DynArrayReducer<T> {
     /**
      * Initializes DynArrayReducer. Any iterable is supported for initial data. Take note that if `data` is an array it
      * will be used as the host array and not copied. All non-array iterables otherwise create a new array / copy.
      *
-     * @param {Iterable<*>|DynData}   data - Data iterable to store if array or copy otherwise.
+     * @param {Iterable<T>|DynData<T>}   data - Data iterable to store if array or copy otherwise.
      */
-    constructor(data?: Iterable<any> | DynData);
+    constructor(data?: Iterable<T> | DynData<T>);
     /**
-     * @returns {AdapterFilters} The filters adapter.
+     * @returns {AdapterFilters<T>} The filters adapter.
      */
-    get filters(): AdapterFilters;
+    get filters(): AdapterFilters<T>;
     /**
      * Returns the Indexer public API.
      *
@@ -122,23 +149,24 @@ declare class DynArrayReducer {
      */
     get length(): number;
     /**
-     * @returns {AdapterSort} The sort adapter.
+     * @returns {AdapterSort<T>} The sort adapter.
      */
-    get sort(): AdapterSort;
+    get sort(): AdapterSort<T>;
     /**
      *
-     * @param {Function} handler - callback function that is invoked on update / changes. Receives `this` reference.
+     * @param {function(DynArrayReducer<T>): void} handler - Callback function that is invoked on update / changes.
+     *                                                       Receives `this` reference.
      *
      * @returns {(function(): void)} Unsubscribe function.
      */
-    subscribe(handler: Function): (() => void);
+    subscribe(handler: (arg0: DynArrayReducer<T>) => void): (() => void);
     /**
      * Provides an iterator for data stored in DynArrayReducer.
      *
-     * @returns {Generator<*, void, *>} Generator / iterator of all data.
-     * @yields {*}
+     * @returns {Generator<*, T, *>} Generator / iterator of all data.
+     * @yields {T}
      */
-    [Symbol.iterator](): Generator<any, void, any>;
+    [Symbol.iterator](): Generator<any, T, any>;
     #private;
 }
 

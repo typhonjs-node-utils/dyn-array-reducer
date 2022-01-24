@@ -1,3 +1,6 @@
+/**
+ * @template T
+ */
 export class AdapterFilters
 {
    #filtersAdapter;
@@ -7,7 +10,7 @@ export class AdapterFilters
    /**
     * @param {Function} indexUpdate - update function for the indexer.
     *
-    * @returns {[AdapterFilters, {filters: Function[]}]} Returns this and internal storage for filter adapters.
+    * @returns {[AdapterFilters<T>, {filters: FilterData<T>[]}]} Returns this and internal storage for filter adapters.
     */
    constructor(indexUpdate)
    {
@@ -20,13 +23,16 @@ export class AdapterFilters
       return [this, this.#filtersAdapter];
    }
 
+   /**
+    * @returns {number} Returns the length of the
+    */
    get length() { return this.#filtersAdapter.filters.length; }
 
    /**
     * Provides an iterator for filters.
     *
-    * @returns {Generator<number|undefined, FilterData, *>} Generator / iterator of filters.
-    * @yields {FilterData}
+    * @returns {Generator<number|undefined, FilterData<T>, *>} Generator / iterator of filters.
+    * @yields {FilterData<T>}
     */
    *[Symbol.iterator]()
    {
@@ -39,7 +45,7 @@ export class AdapterFilters
    }
 
    /**
-    * @param {...(Function|FilterData)}   filters -
+    * @param {...(FilterFn<T>|FilterData<T>)}   filters -
     */
    add(...filters)
    {
@@ -150,7 +156,7 @@ export class AdapterFilters
    }
 
    /**
-    * @param {...(Function|FilterData)}   filters -
+    * @param {...(FilterFn<T>|FilterData<T>)}   filters -
     */
    remove(...filters)
    {
@@ -191,7 +197,7 @@ export class AdapterFilters
     * Remove filters by the provided callback. The callback takes 3 parameters: `id`, `filter`, and `weight`.
     * Any truthy value returned will remove that filter.
     *
-    * @param {Function} callback - Callback function to evaluate each filter entry.
+    * @param {function(*, FilterFn<T>, number): boolean} callback - Callback function to evaluate each filter entry.
     */
    removeBy(callback)
    {

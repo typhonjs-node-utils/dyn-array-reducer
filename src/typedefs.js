@@ -1,25 +1,44 @@
 /**
- * @typedef DynData
+ * @template T
  *
- * @property {Iterable<*>}          data -
- *
- * @property {Iterable<Function|FilterData>}   [filters] -
- *
- * @property {Function}             [sort] -
+ * @typedef {function(T, T): boolean} CompareFn - A callback function that compares two values. Return > 0 to sort b
+ * before a; * < 0 to sort a before b; or 0 to keep original order of a & b.
  */
 
 /**
- * @typedef FilterData
+ * @template T
  *
- * @property {*}        [id=undefined] - An ID associated with this filter. Can be used to remove the filter.
- *
- * @property {Function} filter - Filter function that takes a value argument and returns a truthy value to keep it.
- *
- * @property {number}   [weight=1] - A number between 0 and 1 inclusive to position this filter against others.
+ * @typedef {function(T): boolean} FilterFn - Filter function that takes a value argument and returns a truthy value to
+ *                                            keep it.
  */
 
 /**
- * @typedef {Object} IndexerAPI
+ * @template T
+ *
+ * @typedef {object} DynData
+ *
+ * @property {Iterable<T>}                   data -
+ *
+ * @property {Iterable<FilterFn<T>|FilterData<T>>} [filters] -
+ *
+ * @property {CompareFn<T>}       [sort] -
+ */
+
+/**
+ * @template T
+ *
+ * @typedef {object} FilterData
+ *
+ * @property {*}           [id=undefined] - An ID associated with this filter. Can be used to remove the filter.
+ *
+ * @property {FilterFn<T>} filter - Filter function that takes a value argument and returns a truthy value to
+ *                                  keep it.
+ *
+ * @property {number}      [weight=1] - A number between 0 and 1 inclusive to position this filter against others.
+ */
+
+/**
+ * @typedef {object} IndexerAPI
  *
  * @property {number|null} hash - Current hash value of the index.
  *

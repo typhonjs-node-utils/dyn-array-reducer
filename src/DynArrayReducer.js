@@ -5,6 +5,8 @@ import { Indexer }         from './Indexer.js';
 /**
  * Provides a managed array with non-destructive reducing / filtering / sorting capabilities with subscription /
  * Svelte store support.
+ *
+ * @template T
  */
 export class DynArrayReducer
 {
@@ -14,19 +16,23 @@ export class DynArrayReducer
    #indexAdapter;
 
    /**
-    * @type {AdapterFilters}
+    * @type {AdapterFilters<T>}
     */
    #filters;
 
    /**
-    * @type {{filters: Function[]}}
+    * @type {{filters: FilterFn<T>[]}}
     */
    #filtersAdapter;
 
    /**
-    * @type {AdapterSort}
+    * @type {AdapterSort<T>}
     */
    #sort;
+
+   /**
+    * @type {{compareFn: CompareFn<T>}}
+    */
    #sortAdapter;
 
    #subscriptions = [];
@@ -35,7 +41,7 @@ export class DynArrayReducer
     * Initializes DynArrayReducer. Any iterable is supported for initial data. Take note that if `data` is an array it
     * will be used as the host array and not copied. All non-array iterables otherwise create a new array / copy.
     *
-    * @param {Iterable<*>|DynData}   data - Data iterable to store if array or copy otherwise.
+    * @param {Iterable<T>|DynData<T>}   data - Data iterable to store if array or copy otherwise.
     */
    constructor(data = void 0)
    {
@@ -100,7 +106,7 @@ export class DynArrayReducer
    }
 
    /**
-    * @returns {AdapterFilters} The filters adapter.
+    * @returns {AdapterFilters<T>} The filters adapter.
     */
    get filters() { return this.#filters; }
 
@@ -119,13 +125,14 @@ export class DynArrayReducer
    get length() { return this.#items.length; }
 
    /**
-    * @returns {AdapterSort} The sort adapter.
+    * @returns {AdapterSort<T>} The sort adapter.
     */
    get sort() { return this.#sort; }
 
    /**
     *
-    * @param {Function} handler - callback function that is invoked on update / changes. Receives `this` reference.
+    * @param {function(DynArrayReducer<T>): void} handler - Callback function that is invoked on update / changes.
+    *                                                       Receives `this` reference.
     *
     * @returns {(function(): void)} Unsubscribe function.
     */
@@ -157,8 +164,8 @@ export class DynArrayReducer
    /**
     * Provides an iterator for data stored in DynArrayReducer.
     *
-    * @returns {Generator<*, void, *>} Generator / iterator of all data.
-    * @yields {*}
+    * @returns {Generator<*, T, *>} Generator / iterator of all data.
+    * @yields {T}
     */
    *[Symbol.iterator]()
    {
