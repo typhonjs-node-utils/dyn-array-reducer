@@ -1,4 +1,28 @@
 /**
+ * Provides the storage and sequencing of managed filters. Each filter added may be a bespoke function or a
+ * {@link FilterData} object containing an `id`, `filter`, and `weight` attributes; `filter` is the only required
+ * attribute.
+ *
+ * The `id` attribute can be anything that creates a unique ID for the filter; recommended strings or numbers. This
+ * allows filters to be removed by ID easily.
+ *
+ * The `weight` attribute is a number between 0 and 1 inclusive that allows filters to be added in a
+ * predictable order which is especially handy if they are manipulated at runtime. A lower weighted filter always runs
+ * before a higher weighted filter. For speed and efficiency always set the heavier / more inclusive filter with a
+ * lower weight; an example of this is a keyword / name that will filter out many entries making any further filtering
+ * faster. If no weight is specified the default of '1' is assigned and it is appended to the end of the filters list.
+ *
+ * This class forms the public API which is accessible from the `.filters` getter in the main DynArrayReducer instance.
+ * ```
+ * const dynArray = new DynArrayReducer([...]);
+ * dynArray.filters.add(...);
+ * dynArray.filters.clear();
+ * dynArray.filters.length;
+ * dynArray.filters.remove(...);
+ * dynArray.filters.removeBy(...);
+ * dynArray.filters.removeById(...);
+ * ```
+ *
  * @template T
  */
 export class AdapterFilters
