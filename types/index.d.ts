@@ -37,6 +37,20 @@ type FilterData<T> = {
      */
     weight?: number;
 };
+type SortData<T> = {
+    /**
+     * - An ID associated with this filter. Can be used to remove the filter.
+     */
+    id?: any;
+    /**
+     * - A callback function that compares two values.
+     */
+    compare: CompareFn<T>;
+    /**
+     * - An optional
+     */
+    subscribe?: Function;
+};
 type IndexerAPI = {
     /**
      * - Current hash value of the index.
@@ -57,6 +71,30 @@ type IndexerAPI = {
 };
 
 /**
+ * Provides the storage and sequencing of managed filters. Each filter added may be a bespoke function or a
+ * {@link FilterData} object containing an `id`, `filter`, and `weight` attributes; `filter` is the only required
+ * attribute.
+ *
+ * The `id` attribute can be anything that creates a unique ID for the filter; recommended strings or numbers. This
+ * allows filters to be removed by ID easily.
+ *
+ * The `weight` attribute is a number between 0 and 1 inclusive that allows filters to be added in a
+ * predictable order which is especially handy if they are manipulated at runtime. A lower weighted filter always runs
+ * before a higher weighted filter. For speed and efficiency always set the heavier / more inclusive filter with a
+ * lower weight; an example of this is a keyword / name that will filter out many entries making any further filtering
+ * faster. If no weight is specified the default of '1' is assigned and it is appended to the end of the filters list.
+ *
+ * This class forms the public API which is accessible from the `.filters` getter in the main DynArrayReducer instance.
+ * ```
+ * const dynArray = new DynArrayReducer([...]);
+ * dynArray.filters.add(...);
+ * dynArray.filters.clear();
+ * dynArray.filters.length;
+ * dynArray.filters.remove(...);
+ * dynArray.filters.removeBy(...);
+ * dynArray.filters.removeById(...);
+ * ```
+ *
  * @template T
  */
 declare class AdapterFilters<T> {
@@ -108,12 +146,14 @@ declare class AdapterSort<T> {
      */
     constructor(indexUpdate: Function);
     /**
-     * @param {CompareFn<T>}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
+     * @param {CompareFn<T>|SortData<T>}  data -
+     *
+     * A callback function that compares two values. Return > 0 to sort b before a;
      * < 0 to sort a before b; or 0 to keep original order of a & b.
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters
      */
-    set(compareFn: CompareFn<T>): void;
+    set(data: CompareFn<T> | SortData<T>): void;
     reset(): void;
     #private;
 }

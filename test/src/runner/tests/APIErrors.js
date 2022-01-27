@@ -7,7 +7,7 @@
  */
 export function run({ Module, chai })
 {
-   const { expect } = chai;
+   const { assert, expect } = chai;
    const { DynArrayReducer } = Module;
 
    describe(`API Errors`, () =>
@@ -56,11 +56,28 @@ export function run({ Module, chai })
 
       describe(`AdapterFilter errors`, () =>
       {
+         it(`add - no arguments / noop`, () =>
+         {
+            const dar = new DynArrayReducer([]);
+
+            dar.filters.add();
+
+            assert.equal(dar.filters.length, 0);
+         });
+
          it(`add - wrong argument`, () =>
          {
             const dar = new DynArrayReducer([]);
 
             expect(() => dar.filters.add(false)).to.throw(TypeError,
+             `DynArrayReducer error: 'filter' is not a function or object.`);
+         });
+
+         it(`add - null`, () =>
+         {
+            const dar = new DynArrayReducer([]);
+
+            expect(() => dar.filters.add(null)).to.throw(TypeError,
              `DynArrayReducer error: 'filter' is not a function or object.`);
          });
 
@@ -148,7 +165,16 @@ export function run({ Module, chai })
             compareFn.subscribe = () => null;
 
             expect(() => dar.sort.set(compareFn)).to.throw(Error,
-             `DynArrayReducer error: 'compareFn' has subscribe function, but no unsubscribe function is returned.`);
+             `DynArrayReducer error: sort has 'subscribe' function, but no 'unsubscribe' function is returned.`);
+         });
+
+
+         it(`set SortData w/ compare not as function`, () =>
+         {
+            const dar = new DynArrayReducer([]);
+
+            expect(() => dar.sort.set({ compare: false })).to.throw(Error,
+             `DynArrayReducer error: 'compare' attribute is not a function.`);
          });
       });
    });

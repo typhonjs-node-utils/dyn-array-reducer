@@ -82,14 +82,17 @@ export class AdapterFilters
 
       for (const filter of filters)
       {
-         if (typeof filter !== 'function' && typeof filter !== 'object')
+         const filterType = typeof filter;
+
+         if (filterType !== 'function' && filterType !== 'object' || filter === null)
          {
             throw new TypeError(`DynArrayReducer error: 'filter' is not a function or object.`);
          }
 
          let data = void 0;
+         let subscribeFn = void 0;
 
-         switch (typeof filter)
+         switch (filterType)
          {
             case 'function':
                data = {
@@ -97,6 +100,8 @@ export class AdapterFilters
                   filter,
                   weight: 1
                };
+
+               subscribeFn = filter.subscribe;
                break;
 
             case 'object':
@@ -117,6 +122,8 @@ export class AdapterFilters
                   filter: filter.filter,
                   weight: filter.weight || 1
                };
+
+               subscribeFn = filter.filter.subscribe ?? filter.subscribe;
                break;
          }
 
@@ -136,9 +143,9 @@ export class AdapterFilters
             this.#filtersAdapter.filters.push(data);
          }
 
-         if (typeof data.filter.subscribe === 'function')
+         if (typeof subscribeFn === 'function')
          {
-            const unsubscribe = data.filter.subscribe(this.#indexUpdate);
+            const unsubscribe = subscribeFn(this.#indexUpdate);
 
             // Ensure that unsubscribe is a function.
             if (typeof unsubscribe !== 'function')

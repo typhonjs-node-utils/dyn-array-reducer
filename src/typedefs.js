@@ -38,6 +38,18 @@
  */
 
 /**
+ * @template T
+ *
+ * @typedef {object} SortData
+ *
+ * @property {*}              [id=undefined] - An ID associated with this filter. Can be used to remove the filter.
+ *
+ * @property {CompareFn<T>}   compare - A callback function that compares two values.
+ *
+ * @property {Function}       [subscribe] - An optional
+ */
+
+/**
  * @typedef {object} IndexerAPI
  *
  * @property {number|null} hash - Current hash value of the index.

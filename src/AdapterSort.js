@@ -24,17 +24,43 @@ export class AdapterSort
    }
 
    /**
-    * @param {CompareFn<T>}  compareFn - A callback function that compares two values. Return > 0 to sort b before a;
+    * @param {CompareFn<T>|SortData<T>}  data -
+    *
+    * A callback function that compares two values. Return > 0 to sort b before a;
     * < 0 to sort a before b; or 0 to keep original order of a & b.
     *
     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters
     */
-   set(compareFn)
+   set(data)
    {
       if (typeof this.#unsubscribe === 'function')
       {
          this.#unsubscribe();
          this.#unsubscribe = void 0;
+      }
+
+      let compareFn = void 0;
+      let subscribeFn = void 0;
+
+      switch (typeof data)
+      {
+         case 'function':
+            compareFn = data;
+            subscribeFn = data.subscribe;
+            break;
+
+         case 'object':
+            // Early out if data is null / noop.
+            if (data === null) { break; }
+
+            if (typeof data.compare !== 'function')
+            {
+               throw new TypeError(`DynArrayReducer error: 'compare' attribute is not a function.`);
+            }
+
+            compareFn = data.compare;
+            subscribeFn = data.compare.subscribe ?? data.subscribe;
+            break;
       }
 
       if (typeof compareFn === 'function')
@@ -51,15 +77,15 @@ export class AdapterSort
          return;
       }
 
-      if (typeof compareFn.subscribe === 'function')
+      if (typeof subscribeFn === 'function')
       {
-         this.#unsubscribe = compareFn.subscribe(this.#indexUpdate);
+         this.#unsubscribe = subscribeFn(this.#indexUpdate);
 
          // Ensure that unsubscribe is a function.
          if (typeof this.#unsubscribe !== 'function')
          {
             throw new Error(
-             `DynArrayReducer error: 'compareFn' has subscribe function, but no unsubscribe function is returned.`);
+             `DynArrayReducer error: sort has 'subscribe' function, but no 'unsubscribe' function is returned.`);
          }
       }
       else
