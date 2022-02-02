@@ -45,6 +45,7 @@
     "build": "rollup -c",
     "eslint": "eslint .",
     "posttest": "npm run eslint",
+    "prepublishOnly": "npm run build && npm run test",
     "pretest": "npm run build",
     "test": "c8 --exclude-after-remap=true --reporter=lcov --reporter=text-summary mocha -colors \"test/src/node/**/*.test.js\" --timeout 16000"
   }
