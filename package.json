@@ -1,5 +1,5 @@
 {
-  "name": "@typhonjs-utils/dynamic-array-reducer",
+  "name": "@typhonjs-utils/dyn-array-reducer",
   "description": "Provides a managed array with non-destructive reducing / filtering / sorting capabilities with subscription / Svelte store support.",
   "version": "0.1.0",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
@@ -29,7 +29,7 @@
   "files": [
     "/dist"
   ],
-  "homepage": "https://github.com/typhonjs-node-utils/array-reducer#readme",
+  "homepage": "https://github.com/typhonjs-node-utils/dyn-array-reducer#readme",
   "keywords": [
     "typhonjs",
     "utils",
@@ -39,8 +39,8 @@
     "svelte"
   ],
   "license": "MPL-2.0",
-  "bugs": "https://github.com/typhonjs-node-utils/array-reducer/issues",
-  "repository": "github:typhonjs-node-utils/array-reducer",
+  "bugs": "https://github.com/typhonjs-node-utils/dyn-array-reducer/issues",
+  "repository": "github:typhonjs-node-utils/dyn-array-reducer",
   "scripts": {
     "build": "rollup -c",
     "eslint": "eslint .",
