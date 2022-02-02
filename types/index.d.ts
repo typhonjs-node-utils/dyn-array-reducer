@@ -36,6 +36,10 @@ type FilterData<T> = {
      * - A number between 0 and 1 inclusive to position this filter against others.
      */
     weight?: number;
+    /**
+     * - Optional subscribe function following the Svelte store / subscribe pattern.
+     */
+    subscribe?: Function;
 };
 type SortData<T> = {
     /**
@@ -47,7 +51,7 @@ type SortData<T> = {
      */
     compare: CompareFn<T>;
     /**
-     * - An optional
+     * - Optional subscribe function following the Svelte store / subscribe pattern.
      */
     subscribe?: Function;
 };

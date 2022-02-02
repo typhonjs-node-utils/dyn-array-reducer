@@ -3,6 +3,8 @@
  *
  * @typedef {function(T, T): boolean} CompareFn - A callback function that compares two values. Return > 0 to sort b
  * before a; * < 0 to sort a before b; or 0 to keep original order of a & b.
+ *
+ * @property {Function} [subscribe] - Optional subscribe function following the Svelte store / subscribe pattern.
  */
 
 /**
@@ -10,6 +12,8 @@
  *
  * @typedef {function(T): boolean} FilterFn - Filter function that takes a value argument and returns a truthy value to
  *                                            keep it.
+ *
+ * @property {Function} [subscribe] - Optional subscribe function following the Svelte store / subscribe pattern.
  */
 
 /**
@@ -17,11 +21,11 @@
  *
  * @typedef {object} DynData
  *
- * @property {Iterable<T>}                   data -
+ * @property {Iterable<T>}                         data -
  *
  * @property {Iterable<FilterFn<T>|FilterData<T>>} [filters] -
  *
- * @property {CompareFn<T>}       [sort] -
+ * @property {CompareFn<T>}                        [sort] -
  */
 
 /**
@@ -35,6 +39,8 @@
  *                                  keep it.
  *
  * @property {number}      [weight=1] - A number between 0 and 1 inclusive to position this filter against others.
+ *
+ * @property {Function}    [subscribe] - Optional subscribe function following the Svelte store / subscribe pattern.
  */
 
 /**
@@ -46,7 +52,7 @@
  *
  * @property {CompareFn<T>}   compare - A callback function that compares two values.
  *
- * @property {Function}       [subscribe] - An optional
+ * @property {Function} [subscribe] - Optional subscribe function following the Svelte store / subscribe pattern.
  */
 
 /**
