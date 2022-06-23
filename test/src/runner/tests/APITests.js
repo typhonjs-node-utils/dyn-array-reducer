@@ -20,10 +20,45 @@ export function run({ Module, chai })
             assert.deepEqual([...dynArray], []);
          });
 
+         it(`data (getter)`, () =>
+         {
+            const array = [1, 2];
+            const dynArray = new DynArrayReducer(array);
+            assert.equal(dynArray.data, array, 'data (getter) returns same array');
+         });
+
          it(`length (getter)`, () =>
          {
             const dynArray = new DynArrayReducer([1, 2]);
             assert.equal(dynArray.length, 2, 'length (getter) returns 2');
+         });
+
+         it(`setData (update external)`, () =>
+         {
+            const array = [1, 2];
+            const dynArray = new DynArrayReducer(array);
+            dynArray.setData([3, 4]);
+            assert.isTrue(dynArray.data === array, [3, 4], 'internal array is the same as initially set');
+            assert.deepEqual(array, [3, 4], 'setData updates external array');
+         });
+
+         it(`setData (replace external)`, () =>
+         {
+            const array = [1, 2];
+            const array2 = [3, 4];
+            const dynArray = new DynArrayReducer(array);
+            dynArray.setData(array2, true);
+            assert.isTrue(dynArray.data === array2, 'setData replaces internal array');
+         });
+
+         it(`setData (replace external w/ iterable)`, () =>
+         {
+            const array = [1, 2];
+            const set = new Set([3, 4]);
+            const dynArray = new DynArrayReducer(array);
+            dynArray.setData(set, true);
+            assert.isFalse(dynArray.data === array, 'setData replaces internal array');
+            assert.deepEqual(dynArray.data, [3, 4], 'setData replaces internal array');
          });
 
          it(`set from DynData`, () =>

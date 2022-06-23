@@ -54,6 +54,21 @@ export function run({ Module, chai })
          });
       });
 
+      describe(`DynArrayReducer API errors`, () =>
+      {
+         it(`'setData' - 'data' not iterable`, () =>
+         {
+            expect(() => new DynArrayReducer([]).setData()).to.throw(TypeError,
+             `DynArrayReducer.setData error: 'data' is not iterable.`);
+         });
+
+         it(`'setData' - 'replace' not a boolean`, () =>
+         {
+            expect(() => new DynArrayReducer([]).setData([], 'bad')).to.throw(TypeError,
+             `DynArrayReducer.setData error: 'replace' is not a boolean.`);
+         });
+      });
+
       describe(`AdapterFilter errors`, () =>
       {
          it(`add - no arguments / noop`, () =>
