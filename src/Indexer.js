@@ -50,9 +50,14 @@ export class Indexer
     * @param {number[]}    oldIndex - Old index array.
     *
     * @param {number|null} oldHash - Old index hash value.
+    *
+    * @param {boolean}     [force=false] - When true forces an update to subscribers.
     */
-   calcHashUpdate(oldIndex, oldHash)
+   calcHashUpdate(oldIndex, oldHash, force = false)
    {
+      // Use force if a boolean otherwise default to false.
+      const actualForce = typeof force === 'boolean' ? force : /* c8 ignore next */ false;
+
       let newHash = null;
       const newIndex = this.indexAdapter.index;
 
@@ -66,7 +71,7 @@ export class Indexer
 
       this.indexAdapter.hash = newHash;
 
-      if (oldHash === newHash ? !s_ARRAY_EQUALS(oldIndex, newIndex) : true) { this.hostUpdate(); }
+      if (actualForce || (oldHash === newHash ? !s_ARRAY_EQUALS(oldIndex, newIndex) : true)) { this.hostUpdate(); }
    }
 
    initAdapters(filtersAdapter, sortAdapter)
@@ -120,7 +125,13 @@ export class Indexer
       return data;
    }
 
-   update()
+   /**
+    * Update the reducer indexes. If there are changes subscribers are notified. If data order is changed externally
+    * pass in true to force an update to subscribers.
+    *
+    * @param {boolean}  [force=false] - When true forces an update to subscribers.
+    */
+   update(force = false)
    {
       const oldIndex = this.indexAdapter.index;
       const oldHash = this.indexAdapter.hash;
@@ -143,7 +154,7 @@ export class Indexer
          this.indexAdapter.index.sort(this.sortFn);
       }
 
-      this.calcHashUpdate(oldIndex, oldHash);
+      this.calcHashUpdate(oldIndex, oldHash, force);
    }
 }
 

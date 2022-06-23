@@ -340,7 +340,7 @@ export function run({ Module, chai })
             const sort = (a, b) => b - a;
             sort.subscribe = (handler) =>
             {
-               handler(sort); // Proper subscribe API to kick off an update must invoke the handler on subscribe.
+               handler(); // Proper subscribe API to kick off an update must invoke the handler on subscribe.
                return () => unsubscribeCalled = true;
             };
 

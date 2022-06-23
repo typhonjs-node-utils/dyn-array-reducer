@@ -64,5 +64,5 @@
  *
  * @property {number}      length - Getter returning length of reduced / indexed elements.
  *
- * @property {Function}    update - Manually invoke an update of the index.
+ * @property {(force?:boolean) => void}    update - Manually invoke an update of the index.
  */

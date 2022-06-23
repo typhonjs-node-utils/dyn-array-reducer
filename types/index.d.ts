@@ -71,7 +71,7 @@ type IndexerAPI = {
     /**
      * - Manually invoke an update of the index.
      */
-    update: Function;
+    update: (force?: boolean) => void;
 };
 
 /**
