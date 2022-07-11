@@ -56,6 +56,12 @@ export function run({ Module, chai })
 
       describe(`DynArrayReducer API errors`, () =>
       {
+         it(`'set reversed' - 'reversed' not boolean`, () =>
+         {
+            expect(() => new DynArrayReducer([]).reversed = 'bad').to.throw(TypeError,
+             `DynArrayReducer.reversed error: 'reversed' is not a boolean.`);
+         });
+
          it(`'setData' - 'data' not iterable`, () =>
          {
             expect(() => new DynArrayReducer([]).setData()).to.throw(TypeError,
