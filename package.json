@@ -1,7 +1,7 @@
 {
   "name": "@typhonjs-utils/dyn-array-reducer",
   "description": "Provides a managed array with non-destructive reducing / filtering / sorting / reversing capabilities with subscription / Svelte store support.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
   "contributors": [
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
