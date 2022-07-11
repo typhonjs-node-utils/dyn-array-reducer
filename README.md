@@ -11,5 +11,5 @@
 [![Dependency Status](https://david-dm.org/typhonjs-node-utils/dyn-array-reducer.svg)](https://david-dm.org/typhonjs-node-utils/dyn-array-reducer)
 
 
-Provides a managed array with non-destructive reducing / filtering / sorting capabilities with subscription / Svelte 
-store support.
+Provides a managed array with non-destructive reducing / filtering / sorting / reversing capabilities with 
+subscription / Svelte store support.
