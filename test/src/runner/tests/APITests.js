@@ -33,6 +33,21 @@ export function run({ Module, chai })
             assert.equal(dynArray.length, 2, 'length (getter) returns 2');
          });
 
+         it(`reversed data (no index)`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            assert.deepEqual([...dynArray], [1, 2]);
+
+            dynArray.reversed = true;
+
+            assert.deepEqual([...dynArray], [2, 1]);
+
+            dynArray.reversed = false;
+
+            assert.deepEqual([...dynArray], [1, 2]);
+         });
+
          it(`setData (update external)`, () =>
          {
             const array = [1, 2];
@@ -468,6 +483,25 @@ export function run({ Module, chai })
             dynArray.sort.set((a, b) => b - a);
 
             assert.deepEqual([...dynArray.index], [1, 0], 'sorted index');
+
+            dynArray.sort.reset();
+
+            assert.deepEqual([...dynArray.index], [], 'no index');
+         });
+
+         it(`iterator index reversed`, () =>
+         {
+            const dynArray = new DynArrayReducer([1, 2]);
+
+            assert.deepEqual([...dynArray.index], [], 'no index');
+
+            dynArray.sort.set((a, b) => b - a);
+
+            assert.deepEqual([...dynArray.index], [1, 0], 'sorted index');
+
+            dynArray.reversed = true;
+
+            assert.deepEqual([...dynArray.index], [0, 1], 'reverse sorted index');
 
             dynArray.sort.reset();
 

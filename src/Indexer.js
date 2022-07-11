@@ -1,6 +1,6 @@
 export class Indexer
 {
-   constructor(hostItems, hostUpdate)
+   constructor(host, hostItems, hostUpdate)
    {
       this.hostItems = hostItems;
       this.hostUpdate = hostUpdate;
@@ -20,7 +20,17 @@ export class Indexer
          {
             if (!indexAdapter.index) { return; }
 
-            for (const index of indexAdapter.index) { yield index; }
+            const reversed = host.reversed;
+            const length = indexAdapter.index.length;
+
+            if (reversed)
+            {
+               for (let cntr = length; --cntr >= 0;) { yield indexAdapter.index[cntr]; }
+            }
+            else
+            {
+               for (let cntr = 0; cntr < length; cntr++) { yield indexAdapter.index[cntr]; }
+            }
          }
       };
 

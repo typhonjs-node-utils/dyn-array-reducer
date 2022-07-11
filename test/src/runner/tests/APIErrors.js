@@ -14,9 +14,9 @@ export function run({ Module, chai })
    {
       describe(`ctor errors`, () =>
       {
-         it(`no argument`, () =>
+         it(`null argument`, () =>
          {
-            expect(() => new DynArrayReducer()).to.throw(TypeError,
+            expect(() => new DynArrayReducer(null)).to.throw(TypeError,
              `DynArrayReducer error: 'data' is not iterable.`);
          });
 
