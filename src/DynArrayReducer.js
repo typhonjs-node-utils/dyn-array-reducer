@@ -13,7 +13,7 @@ export class DynArrayReducer
    #items;
 
    #index;
-   #indexAdapter;
+   #indexPublicAPI;
 
    /**
     * @type {AdapterFilters<T>}
@@ -98,10 +98,10 @@ export class DynArrayReducer
       // In the case of the main data being an array directly use the array otherwise create a copy.
       this.#items = Array.isArray(dataIterable) ? dataIterable : [...dataIterable];
 
-      [this.#index, this.#indexAdapter] = new Indexer(this, this.#items, this.#notify.bind(this));
+      [this.#index, this.#indexPublicAPI] = new Indexer(this.#items, this.#notify.bind(this));
 
-      [this.#filters, this.#filtersAdapter] = new AdapterFilters(this.#indexAdapter.publicAPI.update);
-      [this.#sort, this.#sortAdapter] = new AdapterSort(this.#indexAdapter.publicAPI.update);
+      [this.#filters, this.#filtersAdapter] = new AdapterFilters(this.#indexPublicAPI.update);
+      [this.#sort, this.#sortAdapter] = new AdapterSort(this.#indexPublicAPI.update);
 
       this.#index.initAdapters(this.#filtersAdapter, this.#sortAdapter);
 
@@ -143,7 +143,7 @@ export class DynArrayReducer
     *
     * @returns {IndexerAPI & Iterable<number>} Indexer API - is also iterable.
     */
-   get index() { return this.#indexAdapter.publicAPI; }
+   get index() { return this.#indexPublicAPI; }
 
    /**
     * Gets the main data / items length.
@@ -177,6 +177,7 @@ export class DynArrayReducer
       }
 
       this.#reversed = reversed;
+      this.#index.reversed = reversed;
 
       // Recalculate index and force an update to any subscribers.
       this.index.update(true);

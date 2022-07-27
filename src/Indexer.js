@@ -1,11 +1,11 @@
 export class Indexer
 {
-   constructor(host, hostItems, hostUpdate)
+   constructor(hostItems, hostUpdate)
    {
       this.hostItems = hostItems;
       this.hostUpdate = hostUpdate;
 
-      const indexAdapter = { index: null, hash: null };
+      const indexData = { index: null, hash: null, reversed: false };
 
       const publicAPI = {
          update: this.update.bind(this),
@@ -18,37 +18,39 @@ export class Indexer
           */
          [Symbol.iterator]: function *()
          {
-            if (!indexAdapter.index) { return; }
+            if (!indexData.index) { return; }
 
-            const reversed = host.reversed;
-            const length = indexAdapter.index.length;
+            const reversed = indexData.reversed;
+            const length = indexData.index.length;
 
             if (reversed)
             {
-               for (let cntr = length; --cntr >= 0;) { yield indexAdapter.index[cntr]; }
+               for (let cntr = length; --cntr >= 0;) { yield indexData.index[cntr]; }
             }
             else
             {
-               for (let cntr = 0; cntr < length; cntr++) { yield indexAdapter.index[cntr]; }
+               for (let cntr = 0; cntr < length; cntr++) { yield indexData.index[cntr]; }
             }
          }
       };
 
       // Define a getter on the public API to get the length / count of index array.
       Object.defineProperties(publicAPI, {
-         hash: { get: () => indexAdapter.hash },
+         hash: { get: () => indexData.hash },
          isActive: { get: () => this.isActive() },
-         length: { get: () => Array.isArray(indexAdapter.index) ? indexAdapter.index.length : 0 }
+         length: { get: () => Array.isArray(indexData.index) ? indexData.index.length : 0 }
       });
 
       Object.freeze(publicAPI);
 
-      indexAdapter.publicAPI = publicAPI;
+      this.indexData = indexData;
 
-      this.indexAdapter = indexAdapter;
-
-      return [this, indexAdapter];
+      return [this, publicAPI];
    }
+
+   get reversed() { return this.indexData.reversed; }
+
+   set reversed(reversed) { this.indexData.reversed = reversed; }
 
    /**
     * Calculates a new hash value for the new index array if any. If the new index array is null then the hash value
@@ -69,7 +71,7 @@ export class Indexer
       const actualForce = typeof force === 'boolean' ? force : /* c8 ignore next */ false;
 
       let newHash = null;
-      const newIndex = this.indexAdapter.index;
+      const newIndex = this.indexData.index;
 
       if (newIndex)
       {
@@ -79,7 +81,7 @@ export class Indexer
          }
       }
 
-      this.indexAdapter.hash = newHash;
+      this.indexData.hash = newHash;
 
       if (actualForce || (oldHash === newHash ? !s_ARRAY_EQUALS(oldIndex, newIndex) : true)) { this.hostUpdate(); }
    }
@@ -143,25 +145,25 @@ export class Indexer
     */
    update(force = false)
    {
-      const oldIndex = this.indexAdapter.index;
-      const oldHash = this.indexAdapter.hash;
+      const oldIndex = this.indexData.index;
+      const oldHash = this.indexData.hash;
 
       // Clear index if there are no filters and no sort function or the index length doesn't match the item length.
       if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.compareFn) ||
-       (this.indexAdapter.index && this.hostItems.length !== this.indexAdapter.index.length))
+       (this.indexData.index && this.hostItems.length !== this.indexData.index.length))
       {
-         this.indexAdapter.index = null;
+         this.indexData.index = null;
       }
 
       // If there are filters build new index.
-      if (this.filtersAdapter.filters.length > 0) { this.indexAdapter.index = this.reduceImpl(); }
+      if (this.filtersAdapter.filters.length > 0) { this.indexData.index = this.reduceImpl(); }
 
       if (this.sortAdapter.compareFn)
       {
          // If there is no index then create one with keys matching host item length.
-         if (!this.indexAdapter.index) { this.indexAdapter.index = [...Array(this.hostItems.length).keys()]; }
+         if (!this.indexData.index) { this.indexData.index = [...Array(this.hostItems.length).keys()]; }
 
-         this.indexAdapter.index.sort(this.sortFn);
+         this.indexData.index.sort(this.sortFn);
       }
 
       this.calcHashUpdate(oldIndex, oldHash, force);
