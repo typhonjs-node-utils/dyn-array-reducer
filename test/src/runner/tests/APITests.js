@@ -31,6 +31,7 @@ export function run({ Module, chai })
             const dynArray = new DynArrayReducer();
             dynArray.filters.add(() => true);
             assert.deepEqual([...dynArray], []);
+            assert.deepEqual([...dynArray.index], []);
          });
 
          it(`data (getter)`, () =>
