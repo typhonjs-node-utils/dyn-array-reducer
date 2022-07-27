@@ -20,6 +20,19 @@ export function run({ Module, chai })
             assert.deepEqual([...dynArray], []);
          });
 
+         it(`iterator no values (no backing array)`, () =>
+         {
+            const dynArray = new DynArrayReducer();
+            assert.deepEqual([...dynArray], []);
+         });
+
+         it(`iterator no values (no backing array w/ filter)`, () =>
+         {
+            const dynArray = new DynArrayReducer();
+            dynArray.filters.add(() => true);
+            assert.deepEqual([...dynArray], []);
+         });
+
          it(`data (getter)`, () =>
          {
             const array = [1, 2];
@@ -31,6 +44,12 @@ export function run({ Module, chai })
          {
             const dynArray = new DynArrayReducer([1, 2]);
             assert.equal(dynArray.length, 2, 'length (getter) returns 2');
+         });
+
+         it(`length (getter no array)`, () =>
+         {
+            const dynArray = new DynArrayReducer();
+            assert.equal(dynArray.length, 0, 'length (getter) returns 0');
          });
 
          it(`reversed data (no index)`, () =>
@@ -60,7 +79,7 @@ export function run({ Module, chai })
          it(`setData (replace external)`, () =>
          {
             const array = [1, 2];
-            const array2 = [3, 4];
+            const array2 = [3, 4, 5];
             const dynArray = new DynArrayReducer(array);
             dynArray.setData(array2, true);
             assert.isTrue(dynArray.data === array2, 'setData replaces internal array');
@@ -74,6 +93,22 @@ export function run({ Module, chai })
             dynArray.setData(set, true);
             assert.isFalse(dynArray.data === array, 'setData replaces internal array');
             assert.deepEqual(dynArray.data, [3, 4], 'setData replaces internal array');
+         });
+
+         it(`setData (replace external & index updates)`, () =>
+         {
+            const array = [1, 2];
+            const array2 = [3, 4, 5];
+            const dynArray = new DynArrayReducer(array);
+            dynArray.filters.add(() => true);
+
+            assert.equal(dynArray.index.length, 2, 'initial index length is 2');
+
+            dynArray.setData(array2, true);
+
+            assert.isTrue(dynArray.data === array2, 'setData replaces internal array');
+
+            assert.equal(dynArray.index.length, 3, 'initial index length is 3');
          });
 
          it(`set from DynData`, () =>

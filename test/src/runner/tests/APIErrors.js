@@ -29,12 +29,6 @@ export function run({ Module, chai })
 
       describe(`ctor errors (DynData)`, () =>
       {
-         it(`no 'data' attribute`, () =>
-         {
-            expect(() => new DynArrayReducer({})).to.throw(TypeError,
-             `DynArrayReducer error (DynData): 'data' attribute is not iterable.`);
-         });
-
          it(`'data' attribute is non-iterable`, () =>
          {
             expect(() => new DynArrayReducer({ data: false })).to.throw(TypeError,
