@@ -10,7 +10,10 @@ import { Indexer }         from './Indexer.js';
  */
 export class DynArrayReducer
 {
-   #items;
+   /**
+    * @type {Array[]}
+    */
+   #array = [null];
 
    #index;
    #indexPublicAPI;
@@ -46,9 +49,9 @@ export class DynArrayReducer
     * Initializes DynArrayReducer. Any iterable is supported for initial data. Take note that if `data` is an array it
     * will be used as the host array and not copied. All non-array iterables otherwise create a new array / copy.
     *
-    * @param {Iterable<T>|DynData<T>}   [data=[]] - Data iterable to store if array or copy otherwise.
+    * @param {Iterable<T>|DynData<T>}   [data] - Data iterable to store if array or copy otherwise.
     */
-   constructor(data = [])
+   constructor(data)
    {
       let dataIterable = void 0;
       let filters = void 0;
@@ -57,7 +60,7 @@ export class DynArrayReducer
       // Potentially working with DynData.
       if (!DynArrayReducer.#isIterable(data) && data !== null && typeof data === 'object')
       {
-         if (!DynArrayReducer.#isIterable(data.data))
+         if (data.data !== void 0 && !DynArrayReducer.#isIterable(data.data))
          {
             throw new TypeError(`DynArrayReducer error (DynData): 'data' attribute is not iterable.`);
          }
@@ -90,15 +93,18 @@ export class DynArrayReducer
       }
       else
       {
-         if (!DynArrayReducer.#isIterable(data)) { throw new TypeError(`DynArrayReducer error: 'data' is not iterable.`); }
+         if (data !== void 0 && !DynArrayReducer.#isIterable(data)) { throw new TypeError(`DynArrayReducer error: 'data' is not iterable.`); }
 
          dataIterable = data;
       }
 
       // In the case of the main data being an array directly use the array otherwise create a copy.
-      this.#items = Array.isArray(dataIterable) ? dataIterable : [...dataIterable];
+      if (dataIterable)
+      {
+         this.#array[0] = Array.isArray(dataIterable) ? dataIterable : [...dataIterable];
+      }
 
-      [this.#index, this.#indexPublicAPI] = new Indexer(this.#items, this.#notify.bind(this));
+      [this.#index, this.#indexPublicAPI] = new Indexer(this.#array, this.#notify.bind(this));
 
       [this.#filters, this.#filtersAdapter] = new AdapterFilters(this.#indexPublicAPI.update);
       [this.#sort, this.#sortAdapter] = new AdapterSort(this.#indexPublicAPI.update);
@@ -129,9 +135,9 @@ export class DynArrayReducer
     * performed to the data externally do invoke {@link index.update} with `true` to recalculate the index and notify
     * all subscribers.
     *
-    * @returns {T[]} The internal data.
+    * @returns {T[]|null} The internal data.
     */
-   get data() { return this.#items; }
+   get data() { return this.#array[0]; }
 
    /**
     * @returns {AdapterFilters<T>} The filters adapter.
@@ -150,7 +156,11 @@ export class DynArrayReducer
     *
     * @returns {number} Main data / items length.
     */
-   get length() { return this.#items.length; }
+   get length()
+   {
+      const array = this.#array[0];
+      return array ? array.length : 0;
+   }
 
    /**
     * Gets current reversed state.
@@ -187,13 +197,13 @@ export class DynArrayReducer
     * Removes internal data and pushes new data. This does not destroy any initial array set to internal data unless
     * `replace` is set to true.
     *
-    * @param {T[] | Iterable<T>} data - New data to set to internal data.
+    * @param {T[] | Iterable<T> | null} data - New data to set to internal data.
     *
     * @param {boolean} [replace=false] - New data to set to internal data.
     */
    setData(data, replace = false)
    {
-      if (!DynArrayReducer.#isIterable(data))
+      if (data !== null && !DynArrayReducer.#isIterable(data))
       {
          throw new TypeError(`DynArrayReducer.setData error: 'data' is not iterable.`);
       }
@@ -204,17 +214,40 @@ export class DynArrayReducer
       }
 
       // Replace internal data with new array or create an array from an iterable.
-      if (replace)
+      if (!Array.isArray(this.#array[0]) || replace)
       {
-         this.#items = Array.isArray(data) ? data : [...data];
+         if (data)
+         {
+            this.#array[0] = Array.isArray(data) ? data : [...data];
+         }
+         else
+         {
+            this.#array[0] = null;
+         }
       }
       else
       {
-         // Remove all entries in internal data. This will not replace any initially set array.
-         this.#items.length = 0;
+         const array = this.#array[0];
 
-         // Add all new data.
-         this.#items.push(...data);
+         if (array)
+         {
+            // Remove all entries in internal data. This will not replace any initially set array.
+            array.length = 0;
+
+            // Add all new data.
+            array.push(...data);
+         }
+         else
+         {
+            if (data)
+            {
+               this.#array[0] = Array.isArray(data) ? data : [...data];
+            }
+            else
+            {
+               this.#array[0] = null;
+            }
+         }
       }
 
       // Recalculate index and force an update to any subscribers.
@@ -261,23 +294,23 @@ export class DynArrayReducer
     */
    *[Symbol.iterator]()
    {
-      const items = this.#items;
+      const array = this.#array[0];
 
-      if (items.length === 0) { return; }
+      if (array === null || array?.length === 0) { return; }
 
       if (this.#index.isActive())
       {
-         for (const entry of this.index) { yield items[entry]; }
+         for (const entry of this.index) { yield array[entry]; }
       }
       else
       {
          if (this.reversed)
          {
-            for (let cntr = items.length; --cntr >= 0;) { yield items[cntr]; }
+            for (let cntr = array.length; --cntr >= 0;) { yield array[cntr]; }
          }
          else
          {
-            for (let cntr = 0; cntr < items.length; cntr++) { yield items[cntr]; }
+            for (let cntr = 0; cntr < array.length; cntr++) { yield array[cntr]; }
          }
       }
    }

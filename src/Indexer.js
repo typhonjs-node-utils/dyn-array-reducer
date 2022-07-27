@@ -1,8 +1,8 @@
 export class Indexer
 {
-   constructor(hostItems, hostUpdate)
+   constructor(hostArray, hostUpdate)
    {
-      this.hostItems = hostItems;
+      this.hostArray = hostArray;
       this.hostUpdate = hostUpdate;
 
       const indexData = { index: null, hash: null, reversed: false };
@@ -48,6 +48,7 @@ export class Indexer
       return [this, publicAPI];
    }
 
+   /* c8 ignore next */
    get reversed() { return this.indexData.reversed; }
 
    set reversed(reversed) { this.indexData.reversed = reversed; }
@@ -93,7 +94,7 @@ export class Indexer
 
       this.sortFn = (a, b) =>
       {
-         return this.sortAdapter.compareFn(this.hostItems[a], this.hostItems[b]);
+         return this.sortAdapter.compareFn(this.hostArray[0][a], this.hostArray[0][b]);
       };
    }
 
@@ -114,17 +115,20 @@ export class Indexer
    {
       const data = [];
 
+      const array = this.hostArray[0];
+      if (!array) { return data; }
+
       const filters = this.filtersAdapter.filters;
 
       let include = true;
 
-      for (let cntr = 0, length = this.hostItems.length; cntr < length; cntr++)
+      for (let cntr = 0, length = array.length; cntr < length; cntr++)
       {
          include = true;
 
          for (let filCntr = 0, filLength = filters.length; filCntr < filLength; filCntr++)
          {
-            if (!filters[filCntr].filter(this.hostItems[cntr]))
+            if (!filters[filCntr].filter(array[cntr]))
             {
                include = false;
                break;
@@ -148,9 +152,11 @@ export class Indexer
       const oldIndex = this.indexData.index;
       const oldHash = this.indexData.hash;
 
+      const array = this.hostArray[0];
+
       // Clear index if there are no filters and no sort function or the index length doesn't match the item length.
       if ((this.filtersAdapter.filters.length === 0 && !this.sortAdapter.compareFn) ||
-       (this.indexData.index && this.hostItems.length !== this.indexData.index.length))
+       (this.indexData.index && array?.length !== this.indexData.index.length))
       {
          this.indexData.index = null;
       }
@@ -158,10 +164,10 @@ export class Indexer
       // If there are filters build new index.
       if (this.filtersAdapter.filters.length > 0) { this.indexData.index = this.reduceImpl(); }
 
-      if (this.sortAdapter.compareFn)
+      if (this.sortAdapter.compareFn && Array.isArray(array))
       {
          // If there is no index then create one with keys matching host item length.
-         if (!this.indexData.index) { this.indexData.index = [...Array(this.hostItems.length).keys()]; }
+         if (!this.indexData.index) { this.indexData.index = [...Array(array.length).keys()]; }
 
          this.indexData.index.sort(this.sortFn);
       }
